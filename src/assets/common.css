@@ -1,0 +1,57 @@
+.course-container, .screen-container {
+    max-width: 400px;
+    margin: 0 auto;
+    text-align: center;
+}
+
+.hover-me {
+    border: 1px solid black;
+    width: 200px;
+    height: 200px;
+    margin: 0 auto 30px auto;
+}
+
+.courses-list {
+    margin: 0 auto 50px auto;
+    min-width: 350px;
+}
+
+.screen-container {
+    padding-top: 100px;
+}
+
+.screen-container h2 {
+    max-width: 300px;
+    margin: 0 auto 25px auto;
+}
+
+.courses-list tr {
+    height: 35px;
+    line-height: 35px;
+}
+
+.courses-list button {
+    font-size: 16px;
+    line-height: 16px;
+}
+
+.lessons-list {
+    max-width: 200px;
+    margin: 20px auto;
+}
+
+.newsletter {
+    max-width: 300px;
+    margin: 0 auto 20px auto;
+}
+
+.loading-indicator {
+    width: 100%;
+    position: absolute;
+    text-align: center;
+}
+
+.loading-indicator img {
+    width: 75px;
+    margin-top: 100px;
+}
