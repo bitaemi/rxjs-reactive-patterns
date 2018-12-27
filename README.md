@@ -174,25 +174,43 @@ This is unlike the case of browser callbacks -  we can only register callbacks a
 
 ``git checkout -b custom-events`` and start implementing inside this new branch
 
+``ng g c event-bus-experiments``
+
+``ng g c lessons-list``
+
+``ng g c lessons-counter``
+
+Event Bus is an Observer interface with a notify method that gets some payload data (as parameter).
+
+The EventBus class is not visible in other components, as we export only an instance of it:
+
+``export const globalEventBus = new EventBus();``
+
 ## 2.4. Global Event Bus (is NOT Scallable in Complexity)
 
- Global Event Bus = is a mechanism that allows components to interact between them, without @Input and @Output parameters.
+ Global Event Bus = is a component communication mechanism (that allows components to interact with each other), without @Input and @Output parameters, but is NOT Scallable in Complexity -
+
+ that's why we USE Reactive Programming INSTEAD.
 
 ### 2.4.1. Implementing a Global Event Bus
 
 Install Lodash Library and its type definitons to have the autocomplete available:
 
-``yarn add loadash @types/loadash``
+``yarn add lodash @types/lodash``
 
 use it: ``import * as _ from 'loadash'``
 
-``_.remove`` method mutates the array that we pass to it.
+``_.remove`` method mutates the array that we pass to it by appling the second parameter = a function, to it.
 
 ### 2.4.2. Broadcast Application Data using the Global Event Bus
 
-Whenever component is initialized we are going to use the ``globalEventBus`` to notify all the subscribed Observers - in this case, we broadcast a list of lessons, to any observers that will need this data.
+Whenever component is initialized we are going to use the constantant ``globalEventBus``, instance of ``EventBus`` to notify all the subscribed Observers - in this case, we broadcast a list of lessons, to any observers that will need this data.
+
+``globalEventBus.notifyObservers(testLessons);``
 
 EventBusExperiments component, only knows about the ``globalEventBus``.
+
+``LessonsListComponent implements Observer`` otherwise, if it implements the OnInit, the notify wont be called.
 
 ### 2.4.3. Add Support for Different Types of Application Events
 
@@ -206,7 +224,15 @@ EventBusExperiments component, only knows about the ``globalEventBus``.
   
   - add a private method to have a list of observersPerEventType
 
+  - filter the collection of registered observers by event type
+
+  - use a copy of testLessons array, instead of the entier testLessons:
+  
+  ``globalEventBus.notifyObservers(LESSONS_LIST_AVAILABLE, testLessons.slice(0));``
+   
 ## 2.5. An Application Implemented in non-reactive style
+
+``git checkout -b custom-events-non-scalable``
 
   - more than one component modifies the same data;
 
