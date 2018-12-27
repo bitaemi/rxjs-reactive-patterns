@@ -133,7 +133,7 @@ The Observer is an interface with ``notify`` method that provides new data.
 
 In the system there are multiple Observers that are observing on the SAME SUBJECT.
 
-An observer whants to receive a notification if a SUBJECT has a a change in internal state,
+An observer wants to receive a notification if a SUBJECT has a a change in internal state,
 
 so is going to register itself on the SUBJECT.
 
@@ -236,16 +236,28 @@ EventBusExperiments component, only knows about the ``globalEventBus``.
 
   - more than one component modifies the same data;
 
+  -there are multiple components in the application that are keeping a copy of ``Lessons[]``
+
   - tight coupling between LessonsComponent and the main component
 
   - in the LessonsComponent we have a different array than the one from 
   
-  EventBusExperimentsComponent, and that's why the opperations implemented at
+  EventBusExperimentsComponent,
   
-  the level of LessonsComponent won't propagate to the level of 
-  
-  EventBusExperimentsComponent
+  and that's why the operations implemented at the level of LessonsComponent won't propagate to the level of EventBusExperimentsComponent
 
+ - define an inline Observer to add as second parameter to register an Observer of type ADD_NEW_LESSON EVENT:
 
+ ```TypeScript
+  globalEventBus.registerObserver(ADD_NEW_LESSON, {
+      notify: lessonText => {
+        this.lessons.push({
+          id: Math.random(),
+          description: lessonText
+        });
+      }
+    });
+```
+- shared data and no clear owner
 
-
+DO NOT USE SUCH IMPLEMENTATION, LIKE THE ONE FROM `custom-events-non-scalable` branch!!!
