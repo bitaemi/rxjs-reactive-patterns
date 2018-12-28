@@ -18,6 +18,11 @@
     - [2.4.2. Broadcast Application Data using the Global Event Bus](#242-broadcast-application-data-using-the-global-event-bus)
     - [2.4.3. Add Support for Different Types of Application Events](#243-add-support-for-different-types-of-application-events)
   - [2.5. An Application Implemented in non-reactive style](#25-an-application-implemented-in-non-reactive-style)
+  - [3.1. Asynchronous Apps in Reactive Style](#31-asynchronous-apps-in-reactive-style)
+  - [3.2. Fix a timing issue](#32-fix-a-timing-issue)
+  - [3.3. Introduce in App a new Reactive Pattern: Centralized Store](#33-introduce-in-app-a-new-reactive-pattern-centralized-store)
+  - [3.4. The Store and the Observable, closely related](#34-the-store-and-the-observable-closely-related)
+  - [3.5. Using RxJs Library, instead of previously discussed concepts](#35-using-rxjs-library-instead-of-previously-discussed-concepts)
 
 <!-- END doctoc generated TOC please keep comment here to allow auto update -->
 
@@ -258,6 +263,134 @@ EventBusExperiments component, only knows about the ``globalEventBus``.
       }
     });
 ```
-- shared data and no clear owner
+- shared data and no clear owner => issues whith DATA ENCAPSULATION
 
 DO NOT USE SUCH IMPLEMENTATION, LIKE THE ONE FROM `custom-events-non-scalable` branch!!!
+
+# 3. OBSERVABLE PATTERN - The Key Concept of Reactive Programming
+
+The main issue with OBSERVER Pattern, as seen above, is that there is no clear separation between registering to get data(`registerObserver`) and the ability to emit that same data(`notifyObservers`) because each observer has access to the SUBJECT- but what we need is that only certain part of the application  should be able to emit certain events!
+
+Changing the OBSERVER into OBSERVABLE to separate the ability to register from the one to observe:
+
+notify           ------> next
+notifyObservers  ------> next
+registerObserver ------> subscribe
+unregisterObserver -----> unsubscribe
+
+The SUBJECT is still comparable to an Event Bus (magistrala):
+
+```TypeScript
+export interface Observer {
+    next(data: any);
+}
+
+export interface Observable {
+    subscribe(obs: Observer);
+    unsubscribe(obs: Observer);
+}
+interface Subject extends Observer, Observable {
+    next(data: any);
+}
+```
+
+## 3.1. Asynchronous Apps in Reactive Style
+
+Make maintainable apps without the use of MapGenerators and async.
+
+We simply subscribe to the data and we get notified when the data is available in a transparent way.
+
+- create a copy of the newList and store it at the level of lessons:
+
+```TypeScript
+export function initializeLessonsList(newList: Lesson[]) {
+    lessons = _.cloneDeep(newList);
+}
+```
+the lessonList$ used all over the app can subscribe to data, but doesn't have access to other different info about the data:
+
+``export let lessonsList$: Observable;``
+
+```TypeScript
+export let lessonsList$: Observable = {
+    subscribe: obs => lessonsListSubject.subscribe(obs),
+    unsubscribe: obs => lessonsListSubject.unsubscribe(obs)
+};
+```
+The `next` API is called on a subject, only at initialization:
+
+```TypeScript
+export function initializeLessonsList(newList: Lesson[]) {
+    lessons = _.cloneDeep(newList);
+    lessonsListSubject.next(lessons);
+}
+```
+and is not accesible over different components!;
+
+## 3.2. Fix a timing issue
+
+We add ``obs.next(lessons);`` to the Observable object, so that any early subscribers will receive an empty array, immediatly and the late subscriber will receive the list of lessons. Otherwise the implementation works only when subscribing in the constructor, and not later on( for example in ngOnInit .., when the late subscriber calls subscribe after the list has initialized):
+
+```TypeScript
+export let lessonsList$: Observable = {
+    subscribe: obs => {
+        lessonsListSubject.subscribe(obs);
+        obs.next(lessons);
+    },
+    unsubscribe: obs => lessonsListSubject.unsubscribe(obs)
+};
+```
+The consummers of the data (lessons-list component that lists lessons, counter component that lists the count of lessons ...) only have access to the Observable(`LessonsList$`), not to the subject.
+
+## 3.3. Introduce in App a new Reactive Pattern: Centralized Store
+
+Use a second pattern in this app, to centralize data in a single place in the app and thus solve the ownership issue;
+
+- after this, data can be modified only in one place of the app:
+
+```TypeScript
+class DataStore {
+    private lessons: Lesson[] = [];
+    private lessonsListSubject = new SubjectImplementation();
+    public  lessonsList$: Observable = {
+        subscribe: obs => {
+            this.lessonsListSubject.subscribe(obs);
+            obs.next(this.lessons);
+        },
+        unsubscribe: obs => this.lessonsListSubject.unsubscribe(obs)
+    };
+    initializeLessonsList(newList: Lesson[]) {
+        this.lessons = _.cloneDeep(newList);
+        this.lessonsListSubject.next(this.lessons);
+    }
+    addLesson(newLesson: Lesson) {
+        this.lessons.push(_.cloneDeep(newLesson));
+        this.lessonsListSubject.next(this.lessons);
+    }
+}
+
+export const store = new DataStore();
+```
+DATA is ENCAPSULATED inside the STORE.
+
+Because the lessons data from the store is not immutable we use:
+
+```TypeScript
+    broadcast() {
+        this.lessonsListSubject.next(_.cloneDeep(this.lessons));
+    }
+```    
+
+and we have to make sure that no methods that mutate the data exist outside the STORE.
+
+Data is owened be the centralized STORE.
+
+## 3.4. The Store and the Observable, closely related
+
+We transform the Store(`DataStore`) from having an Observable property (`lessonsList$`),
+into beeing an Observable.
+
+## 3.5. Using RxJs Library, instead of previously discussed concepts
+
+Everything about the lib evolves around Observable, Subject, Obser and the other concepts discussed.
+

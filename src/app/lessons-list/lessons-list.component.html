@@ -2,7 +2,7 @@
   <tbody>
     <tr *ngFor="let lesson of lessons">
       <td class="viewed">
-        <input type="checkbox" (click)="toggleLessonViewed(lesson)">
+        <input type="checkbox" [checked]="lesson.completed" (click)="toggleLessonViewed(lesson)">
       </td>
       <td class="lesson-title"> {{ lesson.description }}</td>
       <td class="duration">
@@ -14,7 +14,6 @@
           </button>
         </span>
       </td>
-
     </tr>
   </tbody>
 </table>
