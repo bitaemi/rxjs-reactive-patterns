@@ -16,10 +16,10 @@ export class EventBusExperimentsComponent implements OnInit {
   ngOnInit() {
 
     console.log('Top level component broadcasted all lessons');
-    store.initializeLessonsList(testLessons.slice(0));
+    store.initializeLessonsList(<any>testLessons.slice(0));
 
     setTimeout(() => {
-     const newLesson = {
+     const newLesson: any = {
         id: Math.random(),
         description: 'New lesson arriveing from the backend ...'
     };
@@ -28,7 +28,7 @@ export class EventBusExperimentsComponent implements OnInit {
   }
 
   addLesson(lessonText: string) {
-    const newLesson = {
+    const newLesson: any = {
       id: Math.random(),
       description: lessonText
     };

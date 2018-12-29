@@ -392,5 +392,42 @@ into beeing an Observable.
 
 ## 3.5. Using RxJs Library, instead of previously discussed concepts
 
+``git checkout -b introduce-rxjs``
+
 Everything about the lib evolves around Observable, Subject, Obser and the other concepts discussed.
+
+RxJs is a toolkit that allows us to build ASYNCHRONOUS programms around the Observable Pattern.
+
+Angular CLI already added RxJs to app's package.json.
+
+Whenever we create an Observable in the app we need to specify what kind of data is the Observable emitting: `` Observable<Lesson[]>`` - in this case, a list of lessons.
+
+The Observable is directly connected to the Subject. 
+
+```TypeScript
+    private lessons: Lesson[] = [];
+    private lessonsListSubject = new Subject();
+    public lessonsList$: Observable<Lesson[]> = this.lessonsListSubject.asObservable();
+```
+???
+
+So the lessons list observable will emit the values that are broadcasted via this subject but the subject is kept private.
+
+``BehaviorSubject`` - is a Subject Implementantion that remembers previously emitted values.
+
+- Reactive Style = Build  the app by composing separate modules:
+
+- separate components, separate services interact with each other in a decoupled way, by emitting data.
+
+- each module reacts to the arrival of new data,  but it does not know the seaquences of operations that occur in other modules.
+
+- whenever some part of the app needs data, it subscribes to it and provides an Observer
+
+- the Observer knows how that particular part of the app will react to the arrival of new data
+
+- the Subject is a way of sharing an execution of an Observable
+
+# 4. Stateless Observable Services
+
+
 

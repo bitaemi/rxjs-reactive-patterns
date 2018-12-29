@@ -1,75 +1,43 @@
 
 import * as _ from 'lodash';
 import { Lesson } from '../shared/model/lesson';
+import { Subject, Observable, BehaviorSubject, Observer } from 'rxjs';
 
 export interface Observer {
     next(data: any);
 }
 
-export interface Observable {
-    subscribe(obs: Observer);
-    unsubscribe(obs: Observer);
-}
-interface Subject extends Observer, Observable {
-    next(data: any);
-}
+class DataStore {
 
-class SubjectImplementation implements Subject {
-    private observers: Observer[] = [];
-    next(data: any) {
-        this.observers.forEach(obs => obs.next(data));
-    }
-    subscribe(obs: Observer) {
-        this.observers.push(obs);
-    }
+    private lessonsListSubject = new BehaviorSubject([]);
+    public lessonsList$: Observable<Lesson[]> = this.lessonsListSubject.asObservable();
 
-    unsubscribe(obs: Observer) {
-        _.remove(this.observers, observer => observer === obs);
-    }
-}
-
-const lessonsListSubject = new SubjectImplementation();
-
-let lessons: Lesson[] = [];
-
-export function initializeLessonsList(newList: Lesson[]) {
-    lessons = _.cloneDeep(newList);
-    lessonsListSubject.next(lessons);
-}
-
-class DataStore implements Observable {
-    private lessons: Lesson[] = [];
-    private lessonsListSubject = new SubjectImplementation();
-    subscribe(obs: Observer) {
-        this.lessonsListSubject.subscribe(obs);
-        obs.next(this.lessons);
-    }
-    unsubscribe(obs: Observer) {this.lessonsListSubject.unsubscribe(obs);
-    }
     initializeLessonsList(newList: Lesson[]) {
-        this.lessons = _.cloneDeep(newList);
-        this.broadcast();
+       this.lessonsListSubject.next(_.cloneDeep(newList));
     }
 
     addLesson(newLesson: Lesson) {
-        this.lessons.push(_.cloneDeep(newLesson));
-        this.broadcast();
-    }
-
-    broadcast() {
-        this.lessonsListSubject.next(_.cloneDeep(this.lessons));
+        const lessons = this.cloneLessons();
+        lessons.push(_.cloneDeep(newLesson));
+        this.lessonsListSubject.next(lessons);
     }
 
     deleteLesson(deleted: Lesson) {
-        _.remove(this.lessons,
+        const lessons = this.cloneLessons();
+        _.remove(lessons,
         lesson => lesson.id === deleted.id);
-        this.broadcast();
+       this.lessonsListSubject.next(lessons);
     }
 
     toggleLessonView(toggled: Lesson) {
-        const lesson = _.find(this.lessons, lessonn => lessonn.id === toggled.id);
+        const lessons = this.cloneLessons();
+        const lesson = _.find(lessons, lessonn => lessonn.id === toggled.id);
         lesson.completed = !lesson.completed;
-        this.broadcast();
+        this.lessonsListSubject.next(lessons);
+    }
+
+    private cloneLessons() {
+        return _.cloneDeep(this.lessonsListSubject.getValue());
     }
 }
 
