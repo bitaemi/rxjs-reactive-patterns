@@ -429,5 +429,8 @@ So the lessons list observable will emit the values that are broadcasted via thi
 
 # 4. Stateless Observable Services
 
+We use Google's FireBase for getting data, also the AngularFireBase library is Observable based.
+
+Starting from an imperative style implementation, and refactoring into a reactive implementation.
 
 

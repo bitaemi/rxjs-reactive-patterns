@@ -1,0 +1,42 @@
+
+<div class="screen-container">
+
+    <h2>Stateless Observable Services</h2>
+
+    <table class="courses-list card card-strong" *ngIf="courses">
+        <tr class="course-summary" *ngFor="let course of courses">
+            <td>
+                <img class="lesson-logo"
+                     src="https://material.angularjs.org/latest/img/icons/angular-logo.svg">
+            </td>
+            <td class="description">
+                {{course.description}}
+            </td>
+            <td>
+                <button class="button button-primary"
+                        [routerLink]="['/course',course.url]">
+                    View
+                </button>
+            </td>
+        </tr>
+    </table>
+
+    <div *ngIf="! courses">Loading ...</div>
+
+    <h2>Latest Lessons Published</h2>
+
+    <table class="table lessons-list card card-strong" *ngIf="latestLessons">
+        <tbody>
+        <tr *ngFor="let lesson of latestLessons">
+            <td class="lesson-title"> {{lesson.description}}</td>
+            <td class="duration">
+                <i class="md-icon duration-icon">access_time</i>
+                <span>{{lesson.duration}}</span>
+            </td>
+        </tr>
+        </tbody>
+    </table>
+
+    <div *ngIf="! latestLessons">Loading ...</div>
+
+</div>

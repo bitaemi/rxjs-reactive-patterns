@@ -1,6 +1,13 @@
+
+
 export interface Lesson {
-    id: number;
+    id: string;
     description: string;
     duration?: string;
-    completed?: boolean;
+    url?: string;
+    tags?: string;
+    pro?: boolean;
+    longDescription?: string;
+    courseId?: string;
+    videoUrl?: string;
 }

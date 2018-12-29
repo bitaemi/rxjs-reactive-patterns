@@ -1,18 +1,21 @@
-import { Lesson } from './lesson';
-export const testLessons: Lesson[] = [
+
+
+import {Lesson} from "./lesson";
+
+export const testLessons = [
     {
         id: 1,
-        description: ' Setting up an Angular App',
+        description: ' Setting Up an Angular Development Environment',
         duration: '5:00'
     },
     {
         id: 2,
-        description: ' Implementing a non-scallable app to demonstrate the importance of reactive programming',
-        duration: '8:20'
+        description: ' Running the the Lessons Code',
+        duration: '7:00'
     },
     {
         id: 3,
-        description: ' Observebale Pattern',
-        duration: '45:10'
+        description: 'Build Your First App - Hello World Step By Step',
+        duration: '9:00'
     }
 ];
