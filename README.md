@@ -28,6 +28,7 @@
   - [4.2. Using the Stateless Observable Service](#42-using-the-stateless-observable-service)
   - [4.3. Service Layer API Design Short-Lived or Long-Lived Observables?](#43-service-layer-api-design-short-lived-or-long-lived-observables)
   - [4.4. Refactoring the view component to Reactive Style](#44-refactoring-the-view-component-to-reactive-style)
+- [5. Split Mixed Responsabilities into Smart + Presentational](#5-split-mixed-responsabilities-into-smart--presentational)
 
 <!-- END doctoc generated TOC please keep comment here to allow auto update -->
 
@@ -554,8 +555,23 @@ and use the template `noCourses` variable like this:
         Loading ...
     </ng-template>
 ```
+# 5. Split Mixed Responsabilities into Smart + Presentational
 
+We should respect the SINGLE RESPONSABILITY PRINCIPLE
 
+So, in our home page we can extract: 
+
+- one SMART COMPONENT, that cannot be used in other parts of the app
+
+- two PRESENTATIONAL COMPONENTS (templates), reusabale in different parts of the app
+
+Now the `home.component.ts` = the SMART component, is there to:
+
+- simply DEFINE what are the STREAMS OF DATA that the view needs to display
+
+- knows how to get that data - has the service injected into the constructor
+
+- knows how to fetch the data and what is the business meaning of the data
 
 
 

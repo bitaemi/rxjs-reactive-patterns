@@ -94,11 +94,11 @@
   "defaultProject": "reactive-patterns-course",
   "schematics": {
     "@schematics/angular:component": {
-      "prefix": "",
+      "prefix": "app",
       "styleext": "css"
     },
     "@schematics/angular:directive": {
-      "prefix": ""
+      "prefix": "app"
     }
   }
 }
