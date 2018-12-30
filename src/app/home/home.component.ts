@@ -1,5 +1,4 @@
 import {Component, OnInit} from '@angular/core';
-import {AngularFireDatabase} from 'angularfire2/database';
 import { Course } from '../shared/model/course';
 import { Lesson } from '../shared/model/lesson';
 import { CoursesService } from '../services/courses.service';
@@ -19,7 +18,15 @@ export class HomeComponent implements OnInit {
     }
 
     ngOnInit() {
+        this.coursesService.findAllCourses()
+        .subscribe(
+            data => this.courses = data
+        );
 
+        this.coursesService.findLastLessons()
+        .subscribe(
+            data => this.latestLessons = data
+        );
 
     }
 

@@ -23,6 +23,10 @@
   - [3.3. Introduce in App a new Reactive Pattern: Centralized Store](#33-introduce-in-app-a-new-reactive-pattern-centralized-store)
   - [3.4. The Store and the Observable, closely related](#34-the-store-and-the-observable-closely-related)
   - [3.5. Using RxJs Library, instead of previously discussed concepts](#35-using-rxjs-library-instead-of-previously-discussed-concepts)
+- [4. Stateless Observable Services](#4-stateless-observable-services)
+  - [4.1. Implementing the API of a Stateless Observable Service](#41-implementing-the-api-of-a-stateless-observable-service)
+  - [4.2. Using the Stateless Observable Service](#42-using-the-stateless-observable-service)
+  - [4.3. Service Layer API Design Short-Lived or long lived Observables?](#43-service-layer-api-design-short-lived-or-long-lived-observables)
 
 <!-- END doctoc generated TOC please keep comment here to allow auto update -->
 
@@ -429,8 +433,107 @@ So the lessons list observable will emit the values that are broadcasted via thi
 
 # 4. Stateless Observable Services
 
-We use Google's FireBase for getting data, also the AngularFireBase library is Observable based.
+We use one Google's FireBase for getting data - reading (see fireBase.config.ts for batabase setup and settings), also the AngularFireBase library is Observable based API.
 
 Starting from an imperative style implementation, and refactoring into a reactive implementation.
+
+
+Imperative:
+
+- keeping local copies of data - mutable data!;
+
+- injecting into component's constructor service:
+
+``constructor(private db: AngularFireDatabase)`` => no separation between service
+
+layer and view layer;
+
+- in couse-detail we encounter an **ANTIPATTERN: NESTED `.subscribe`**
+
+Reactive:
+
+- no local use of variables data to remove the posibility of mutating data
+
+- Separate Service logic from view logic! = make reusable services/business logic/fdatabase quering
+
+
+## 4.1. Implementing the API of a Stateless Observable Service
+
+- no member variables that store data in the service
+
+- instead have public methods that expose the data to consumers (`findAllCourses`, `findLatestLessons` ...) - this methods return Observable = provide a callback if and when data is available
+
+- only required singleton instances injected in the constructor (here `db` instance of the global `AngularFireDatabase` service)
+
+- we **don't want to return synchronous data** from such global services
+
+- instead, we want to **return an Observable that emits values** wich are the desired data(array of Courses, in this case):
+
+```TypeScript
+    findAllCourses(): Observable<Course[]> {
+        return this.db.list('courses')
+        .do(console.log);
+    }
+```
+## 4.2. Using the Stateless Observable Service
+
+In the component that renders the view logic ( ex: `home.component.ts`), subscribe to the Observable of the injected service(`coursesService`):
+
+```TypeScript
+    this.coursesService.findAllCourses()
+        .subscribe(
+            data => this.courses = data
+        );
+```
+- delete all dependencies (imports) of `AngularFireBase` from the rendering view components because we what the access at the database only in one place (centralized service for all the queries on that data), thus completly separate bussiness logic from view logic
+
+- use the injected Singleton instance (in this case, our Stateless Observable Service) in all components requiring the data
+
+- the view layer(component), receives data **independently of any timing condition** - that's because we consume  Stateless Observable Services, by subscribing to the Observables of the service 
+
+- so, no need for Maping and async of Promisses, instead we use Observables
+
+```TypeScript
+    findCoursByApi(courseUrl: string): Observable<Course> {
+        return this.db.list('courses',
+        {
+            query: {
+                orderByChild: 'url',
+                equalTo: courseUrl
+            }
+        })
+        .map( data => data[0]);
+    }
+```
+At that URl there is only one course, that's why we access with `map`, the first element of the set of values returned by the list method of AngularFireDatabase service.
+
+## 4.3. Service Layer API Design Short-Lived or Long-Lived Observables?
+
+In case we do not want the live connection between the database and the view layer, and the Observables returned by the service are *Long-Lived*( like the one of AngularFireBase) we apply the `first` method in the Observables returned by the service:
+
+```TypeScript
+    findAllCourses(): Observable<Course[]> {
+        return this.db.list('courses')
+        .first()
+    }
+```
+*Long-Lived* Observables are much more likely to accidentally create memory leaks, 
+
+depending on the way that we use them.
+
+## 4.4. Refactoring the view component to Reactive Style
+
+- remove local variables/members
+
+- eliminate the `subscribe` call to the Observables, thus eliminate the danger of forgeting to unsubscribe
+
+- transform the imperative way of writing code into declarative way
+
+
+
+
+    
+
+
 
 
