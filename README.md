@@ -26,7 +26,8 @@
 - [4. Stateless Observable Services](#4-stateless-observable-services)
   - [4.1. Implementing the API of a Stateless Observable Service](#41-implementing-the-api-of-a-stateless-observable-service)
   - [4.2. Using the Stateless Observable Service](#42-using-the-stateless-observable-service)
-  - [4.3. Service Layer API Design Short-Lived or long lived Observables?](#43-service-layer-api-design-short-lived-or-long-lived-observables)
+  - [4.3. Service Layer API Design Short-Lived or Long-Lived Observables?](#43-service-layer-api-design-short-lived-or-long-lived-observables)
+  - [4.4. Refactoring the view component to Reactive Style](#44-refactoring-the-view-component-to-reactive-style)
 
 <!-- END doctoc generated TOC please keep comment here to allow auto update -->
 
@@ -523,11 +524,41 @@ depending on the way that we use them.
 
 ## 4.4. Refactoring the view component to Reactive Style
 
-- remove local variables/members
+- transform the imperative way of writing code into declarative way:
 
-- eliminate the `subscribe` call to the Observables, thus eliminate the danger of forgeting to unsubscribe
+- a) replace state variables/members (data itself) with the coresponding Observables = INCOMING STREAMS OF DATA like:
 
-- transform the imperative way of writing code into declarative way
+```TypeScript
+    courses$: Observable<Course[]>;
+    // .. all the other required variables
+```
+
+- eliminate the `subscribe` call to the Observables, thus eliminate the danger of forgeting to unsubscribe:
+
+```TypeScript
+ this.courses$ = this.coursesService.findAllCourses();
+ // ... declare all the other streams of data = Observables
+ ```
+At the level of the template we consume the Observable members using the async pipe:
+
+``courses$ | async`` and assigning the output of this returned stream , to a local template variable, so that we wont use this async call multiple times in the template!
+
+Also for empty stream a data use a local template variable like `noCourses`:
+
+```*ngIf="courses$ | async as courses else noCourses"```
+
+and use the template `noCourses` variable like this:
+
+```HTML
+    <ng-template #loadingCourses>
+        Loading ...
+    </ng-template>
+```
+
+
+
+
+
 
 
 
