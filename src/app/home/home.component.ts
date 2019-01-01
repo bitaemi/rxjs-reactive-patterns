@@ -1,8 +1,8 @@
 import {Component, OnInit} from '@angular/core';
-import { Course } from '../shared/model/course';
-import { Lesson } from '../shared/model/lesson';
-import { CoursesService } from '../services/courses.service';
-import { Observable } from 'rxjs';
+import {Course} from "../shared/model/course";
+import {Lesson} from "../shared/model/lesson";
+import {CoursesService} from "../services/courses.service";
+import {Observable} from 'rxjs';
 
 @Component({
     selector: 'home',
@@ -19,8 +19,21 @@ export class HomeComponent implements OnInit {
     }
 
     ngOnInit() {
-        this.courses$ = this.coursesService.findAllCourses();
-        this.latestLessons$ = this.coursesService.findLastLessons();
+
+        this.courses$ =  this.coursesService.findAllCourses();
+
+        this.latestLessons$ = this.coursesService.findLatestLessons();
+
+
+
     }
 
 }
+
+
+
+
+
+
+
+

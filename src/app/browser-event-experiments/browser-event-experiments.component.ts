@@ -1,8 +1,8 @@
 import { Component, OnInit } from '@angular/core';
-import {fromEvent, Subscription } from 'rxjs';
+import {fromEvent, Subscription} from 'rxjs';
 
 @Component({
-  selector: 'app-browser-event-experiments',
+  selector: 'browser-event-experiments',
   templateUrl: './browser-event-experiments.component.html',
   styleUrls: ['./browser-event-experiments.component.css']
 })
@@ -20,10 +20,10 @@ export class BrowserEventExperimentsComponent implements OnInit {
 
       const click$ = fromEvent(this.hoverSection, 'click');
 
-      // const combined$  = click$.withLatestFrom(mouseMove$)
-      //       .map(events => events[1]);
+      const combined$  = click$.withLatestFrom(mouseMove$)
+            .map(events => events[1]);
 
-      // combined$.subscribe(console.log);
+      combined$.subscribe(console.log);
 
   }
 

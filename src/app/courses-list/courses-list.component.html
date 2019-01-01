@@ -1,9 +1,6 @@
-<table class="courses-list card card-strong" *ngIf="courses else loadingCourses">
+<table class="courses-list card card-strong"
+       *ngIf="courses; else loadingCourses;">
     <tr class="course-summary" *ngFor="let course of courses">
-        <td>
-            <img class="lesson-logo"
-                 src="https://material.angularjs.org/latest/img/icons/angular-logo.svg">
-        </td>
         <td class="description">
             {{course.description}}
         </td>
@@ -17,5 +14,5 @@
 </table>
 
 <ng-template #loadingCourses>
-    Loading ...
+    <div>Loading ...</div>
 </ng-template>

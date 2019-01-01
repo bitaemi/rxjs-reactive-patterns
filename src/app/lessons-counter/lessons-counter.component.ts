@@ -1,10 +1,10 @@
 import { Component, OnInit } from '@angular/core';
-import {Lesson} from '../shared/model/lesson';
-import {store} from '../event-bus-experiments/app-data';
+import {Lesson} from "../shared/model/lesson";
+import {store} from "../event-bus-experiments/app-data";
 import {Observer} from 'rxjs';
 
 @Component({
-  selector: 'app-lessons-counter',
+  selector: 'lessons-counter',
   templateUrl: './lessons-counter.component.html',
   styleUrls: ['./lessons-counter.component.css']
 })

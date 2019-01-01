@@ -527,14 +527,14 @@ depending on the way that we use them.
 
 - transform the imperative way of writing code into declarative way:
 
-- a) replace state variables/members (data itself) with the coresponding Observables = INCOMING STREAMS OF DATA like:
+- a) replace state variables/members (data itself) with the corresponding Observables = INCOMING STREAMS OF DATA like:
 
 ```TypeScript
     courses$: Observable<Course[]>;
     // .. all the other required variables
 ```
 
-- eliminate the `subscribe` call to the Observables, thus eliminate the danger of forgeting to unsubscribe:
+- eliminate the `subscribe` call to the Observables, thus eliminate the danger of forgetting to unsubscribe:
 
 ```TypeScript
  this.courses$ = this.coursesService.findAllCourses();
@@ -555,7 +555,7 @@ and use the template `noCourses` variable like this:
         Loading ...
     </ng-template>
 ```
-# 5. Split Mixed Responsabilities into Smart + Presentational
+## 4.5. Split Mixed Responsabilities into Smart + Presentational
 
 We should respect the SINGLE RESPONSABILITY PRINCIPLE
 
@@ -569,9 +569,11 @@ Now the `home.component.ts` = the SMART component, is there to:
 
 - simply DEFINE what are the STREAMS OF DATA that the view needs to display
 
-- knows how to get that data - has the service injected into the constructor
+- knows how to get that data - has the service injected into the constructor,
 
-- knows how to fetch the data and what is the business meaning of the data
+knows how to fetch the data and what is the business meaning of the data
+
+# 5. Observable Data Services
 
 
 

@@ -17,9 +17,13 @@
     min-width: 350px;
 }
 
+.screen-container {
+    padding-top: 100px;
+}
+
 .screen-container h2 {
     max-width: 300px;
-    margin: 30px auto;
+    margin: 0 auto 25px auto;
 }
 
 .courses-list tr {
@@ -35,4 +39,9 @@
 .lessons-list {
     max-width: 200px;
     margin: 20px auto;
+}
+
+.newsletter {
+    max-width: 300px;
+    margin: 0 auto;
 }
