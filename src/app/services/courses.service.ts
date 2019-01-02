@@ -1,8 +1,8 @@
 import { Injectable } from '@angular/core';
-import {AngularFireDatabase} from 'angularfire2/database';
-import {Course} from "../shared/model/course";
-import {Observable} from 'rxjs';
-import {Lesson} from "../shared/model/lesson";
+import { AngularFireDatabase } from 'angularfire2/database';
+import { Course } from '../shared/model/course';
+import { Observable } from 'rxjs';
+import { Lesson } from '../shared/model/lesson';
 
 @Injectable()
 export class CoursesService {
@@ -28,7 +28,7 @@ export class CoursesService {
       .do(console.log);
   }
 
-  findCourseByUrl(courseUrl:string): Observable<Course> {
+  findCourseByUrl(courseUrl: string): Observable<Course> {
       return this.db.list('courses', {
           query: {
               orderByChild: 'url',
@@ -40,7 +40,7 @@ export class CoursesService {
 
   }
 
-  findLessonsForCourse(courseId:string): Observable<Lesson[]> {
+  findLessonsForCourse(courseId: string): Observable<Lesson[]> {
       return <any>this.db.list('lessons', {
           query: {
               orderByChild: 'courseId',

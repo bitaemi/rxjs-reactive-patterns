@@ -1,13 +1,13 @@
 
 
-import {User} from "../app/shared/model/user";
+import {User} from '../app/shared/model/user';
 const auth = {
     'john@gmail.com': 'test123',
     'bill@gmail.com': 'test456'
 
 };
 
-const users: {[key:string]: User} = {
+const users: {[key: string]: User} = {
     'john@gmail.com': {
         firstName: 'John'
     },
@@ -26,12 +26,7 @@ export function loginRoute(req, res) {
 
     if (auth[payload.email] && auth[payload.email] === payload.password) {
         res.status(200).json(users[payload.email]);
-    }
-    else {
+    } else {
         res.sendStatus(500);
     }
-
-
-
-
 }

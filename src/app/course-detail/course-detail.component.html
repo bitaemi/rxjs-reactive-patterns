@@ -1,9 +1,11 @@
 
 <div class="screen-container">
-
-    <course-detail-header [course]="course" [lessons]="lessons"
-        firstName="John" (subscribe)="onSubscribe($event)"></course-detail-header>
-
+    <app-course-detail-header 
+        [course]="course$ | async" 
+        [lessons]="lessons$ | async"
+        [firstName]="(userService.user$ | async)?.firstName" 
+        (subscribe)="onSubscribe($event)">
+    </app-course-detail-header>
     <table class="table lessons-list card card-strong" *ngIf="lessons">
         <tbody>
         <tr *ngFor="let lesson of lessons">
@@ -16,7 +18,9 @@
         </tbody>
     </table>
 
-    <div *ngIf="! lessons">Loading ...</div>
+    <div *ngIf="! lessons">
+        Loading ...
+    </div>
 
 </div>
 

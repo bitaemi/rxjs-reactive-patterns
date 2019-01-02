@@ -28,7 +28,8 @@
   - [4.2. Using the Stateless Observable Service](#42-using-the-stateless-observable-service)
   - [4.3. Service Layer API Design Short-Lived or Long-Lived Observables?](#43-service-layer-api-design-short-lived-or-long-lived-observables)
   - [4.4. Refactoring the view component to Reactive Style](#44-refactoring-the-view-component-to-reactive-style)
-- [5. Split Mixed Responsabilities into Smart + Presentational](#5-split-mixed-responsabilities-into-smart--presentational)
+  - [4.5. Split Mixed Responsabilities into Smart + Presentational](#45-split-mixed-responsabilities-into-smart--presentational)
+- [5. Observable Data Services](#5-observable-data-services)
 
 <!-- END doctoc generated TOC please keep comment here to allow auto update -->
 
@@ -575,6 +576,57 @@ knows how to fetch the data and what is the business meaning of the data
 
 # 5. Observable Data Services
 
+`git checkout -b observable-data-services`
+
+Running `yarn` doesn't propely install the required modules;
+
+`npm i`, sometimes it fails on some modules, due to compatibilities issues,
+
+ you have to run again `npm i` or run separatly, globaly some failing modules
+
+run: `npm install rxjs@6 rxjs-compat@6 promise-polyfill` to fix rxjs compatibilities issues
+
+`npm run rest-api` to start the rest server
+
+`npm start` to serve the app
+
+- to begin with, we have some deeply nested components, taking some `@Input`s(firstname) and emitting some `@Outpput`s (subscribe $event):
+
+- in the including template courses-header.component.ts we pass the input and outputs:
+
+``<app-newsletter [firstName]="firstName" (subscribe)="onSubscribe($event)">``
+
+and in  the newsletter.component.ts:
+
+```TypeScript
+@Input()
+    firstName: string;
+
+    @Output()
+    subscribe = new EventEmitter();
+```
+- the correct approach is to eliminate the unnecesary bubbling up in the component tree some output events
+
+- keep in memory on client side some necessary user info - don't emit constant requests to the server as we navigate the app, that's why we make an **Observable Data Service** - the user.service.ts = stateless service
+
+- usage: whenever we need to know the state/info about the user we inject the userService in those parts of the app
+
+- keep the ability of emitting data private to the service, behaviourSubject remembers its last emitted value:
+
+``private subject = new BehaviorSubject(UNKNOWN_USER)``, expose only the user data:
+
+``user$: Observable<User> = this.subject.asObservable()``
+
+- the `login` method returns a stream of data (Observable) and we **make sure** that the HTTP POST call, **first** completes, and then emits the value
+
+- we manage **NOT TO** have multiple HTTP calls, by using ``.publishLast().refCount()``:
+
+```TypeScript
+    return this.http.post('/api/login', {email, password})
+    .map( response => response.json())
+    .do(user => this.subject.next(user))
+    .publishLast().refCount();
+```    
 
 
 

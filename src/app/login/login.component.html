@@ -2,13 +2,28 @@
     <h2>Login</h2>
 
     <div>
-        <input type="email" name="email" placeholder="Email">
+        <input 
+            #email 
+            type="email" 
+            name="email" 
+            placeholder="Email" 
+            autocomplete="off"
+        />
     </div>
     <div>
-        <input type="password" name="password" placeholder="Password">
+        <input 
+            #password 
+            type="password" 
+            name="password" 
+            placeholder="Password" 
+            autocomplete="off"
+        />
     </div>
 
-    <input type="submit" value="Login"
-           class="button button-primary" (click)="login()">
-
+    <input 
+        type="submit" 
+        value="Login"
+        class="button button-primary" 
+        (click)="login(email.value, password.value)"
+    />
 </div>

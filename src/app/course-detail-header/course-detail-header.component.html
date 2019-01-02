@@ -4,4 +4,6 @@
 <h5>Total lessons: {{lessons?.length}}</h5>
 
 
-<newsletter [firstName]="firstName" (subscribe)="onSubscribe($event)"></newsletter>
+<app-newsletter [firstName]="firstName" (subscribe)="onSubscribe($event)">
+
+</app-newsletter>
