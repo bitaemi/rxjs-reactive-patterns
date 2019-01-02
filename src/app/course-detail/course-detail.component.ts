@@ -4,7 +4,6 @@ import {Course} from '../shared/model/course';
 import {Lesson} from '../shared/model/lesson';
 import * as _ from 'lodash';
 import {CoursesService} from '../services/courses.service';
-import {NewsletterService} from '../services/newsletter.service';
 import { UserService } from 'app/services/user.service';
 import { Observable } from 'rxjs';
 
@@ -16,41 +15,27 @@ import { Observable } from 'rxjs';
 })
 export class CourseDetailComponent implements OnInit {
 
-  course$: Observable<Course[]>;
+  course$: Observable<Course>;
   lessons$: Observable<Lesson[]>;
-  firstname;
+
   constructor(private route: ActivatedRoute,
               private coursesService: CoursesService,
-              private newsletterService: NewsletterService,
               private userService: UserService) {
-
   }
 
   ngOnInit() {
-    // this.route.params
-    // .subscribe( params => {
+      this.course$ = this.route.params
+      .switchMap( params => this.coursesService.findCourseByUrl(params['id']))
+      .first()
+      .publishLast().refCount();
 
-    //     const courseUrl = params['id'];
-    //     this.course$ = this.route.params.switchMap(params => this.coursesService.findCourseByUrl(params['id']))
-
-    //     this.coursesService.findCourseByUrl(courseUrl)
-    //     .subscribe(data => {
-    //         let course = data;
-
-    //         this.coursesService.findLessonsForCourse(course.id)
-    //           .subscribe(lessons => this.lessons$ = lessons);
-    //     });
-
-    // });
+      this.lessons$ = this.course$
+      .switchMap(course => this.coursesService.findLessonsForCourse(course.id));
   }
-  onSubscribe(email: string) {
-      this.newsletterService.subscribeToNewsletter(email)
-          .subscribe(
-              () => {
-                  alert('Subscription successful ...');
-              },
-              console.error
-          );
-  }
+
+  loginAsJohn() {
+    this.userService.login('john@gmail.com', 'test123').subscribe();
+
+}
 
 }

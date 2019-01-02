@@ -26,5 +26,4 @@ export class CourseDetailHeaderComponent {
     onSubscribe(email: string) {
         this.subscribe.emit(email);
     }
-
 }

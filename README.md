@@ -590,7 +590,7 @@ run: `npm install rxjs@6 rxjs-compat@6 promise-polyfill` to fix rxjs compatibili
 
 `npm start` to serve the app
 
-- to begin with, we have some deeply nested components, taking some `@Input`s(firstname) and emitting some `@Outpput`s (subscribe $event):
+- to begin with, we have some deeply nested components, taking some `@Input`s(firstname) and emitting some `@Outpput`s (subscribe $event) to the parent components:
 
 - in the including template courses-header.component.ts we pass the input and outputs:
 
@@ -627,6 +627,21 @@ and in  the newsletter.component.ts:
     .do(user => this.subject.next(user))
     .publishLast().refCount();
 ```    
+- in the userService we inject the HTTP Angular's service, wich is stateless:
+
+`` constructor(private http: Http) { }``
+
+- userService has no information obout who will consume the data in the app, it simply emits the data
+
+- to obtain a more specific (inner Observable) - only a specific course, from a more general Observable - all courses, we switchMap to the inner Observable:
+
+```TypeScript
+this.course$ = this.route.params
+      .switchMap( params => this.coursesService.findCourseByUrl(params['id']));
+```
+-  the component is only going to be re-rendered if there is a change in one of it's inputs: 
+
+``changeDetection: ChangeDetectionStrategy.OnPush``
 
 
 

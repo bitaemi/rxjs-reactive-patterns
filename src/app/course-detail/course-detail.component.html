@@ -1,22 +1,13 @@
 
 <div class="screen-container">
+    <button class="button button-primary mb-3" (click)="loginAsJohn()">Login as John</button>
     <app-course-detail-header 
         [course]="course$ | async" 
         [lessons]="lessons$ | async"
         [firstName]="(userService.user$ | async)?.firstName" 
         (subscribe)="onSubscribe($event)">
     </app-course-detail-header>
-    <table class="table lessons-list card card-strong" *ngIf="lessons">
-        <tbody>
-        <tr *ngFor="let lesson of lessons">
-            <td class="lesson-title"> {{lesson.description}}</td>
-            <td class="duration">
-                <i class="md-icon duration-icon">access_time</i>
-                <span>{{lesson.duration}}</span>
-            </td>
-        </tr>
-        </tbody>
-    </table>
+    <lessons-list [lessons]="lessons$ | async"></lessons-list>
 
     <div *ngIf="! lessons">
         Loading ...
