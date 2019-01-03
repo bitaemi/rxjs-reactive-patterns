@@ -35,9 +35,8 @@ export class CoursesService {
               equalTo: courseUrl
           }
       })
-      .first()
-      .map( data => data[0]);
-
+      .map( data => data[0])
+      .first();
   }
 
   findLessonsForCourse(courseId: string): Observable<Lesson[]> {

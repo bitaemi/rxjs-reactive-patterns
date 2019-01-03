@@ -1,6 +1,7 @@
 import { Component, OnInit, Input, Output, EventEmitter, ChangeDetectionStrategy } from '@angular/core';
 import { NewsletterService } from 'app/services/newsletter.service';
 import { UserService } from 'app/services/user.service';
+import { Observable } from 'rxjs';
 
 @Component({
     selector: 'app-newsletter',
@@ -10,15 +11,16 @@ import { UserService } from 'app/services/user.service';
 })
 export class NewsletterComponent implements OnInit {
 
-    firstname: string;
+    firstName$: Observable<string>;
+
     constructor(
         private userService: UserService,
         private newsletterService: NewsletterService,
     ) {}
 
-    ngOnInit(){
-        this.userService.user$.subscribe(
-            user => this.firstname = user.firstName
+    ngOnInit() {
+        this.firstName$ = this.userService.user$.map(
+            user => user.firstName
         )
     }
 
@@ -26,6 +28,7 @@ export class NewsletterComponent implements OnInit {
         this.newsletterService.subscribeToNewsletter(emailField.value)
         .subscribe(
             () => {
+                emailField.value = '';
                 alert('Subscription successful ...');
             },
             console.error

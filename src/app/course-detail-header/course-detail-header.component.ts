@@ -16,14 +16,4 @@ export class CourseDetailHeaderComponent {
 
     @Input()
     lessons: Lesson[];
-
-    @Input()
-    firstName: string;
-
-    @Output()
-    subscribe = new EventEmitter();
-
-    onSubscribe(email: string) {
-        this.subscribe.emit(email);
-    }
 }

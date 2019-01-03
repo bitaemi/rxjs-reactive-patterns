@@ -26,10 +26,12 @@
 - [4. Stateless Observable Services](#4-stateless-observable-services)
   - [4.1. Implementing the API of a Stateless Observable Service](#41-implementing-the-api-of-a-stateless-observable-service)
   - [4.2. Using the Stateless Observable Service](#42-using-the-stateless-observable-service)
-  - [4.3. Service Layer API Design Short-Lived or Long-Lived Observables?](#43-service-layer-api-design-short-lived-or-long-lived-observables)
+  - [4.3. Service Layer API Design: Short-Lived or Long-Lived Observables?](#43-service-layer-api-design-short-lived-or-long-lived-observables)
   - [4.4. Refactoring the view component to Reactive Style](#44-refactoring-the-view-component-to-reactive-style)
   - [4.5. Split Mixed Responsabilities into Smart + Presentational](#45-split-mixed-responsabilities-into-smart--presentational)
 - [5. Observable Data Services](#5-observable-data-services)
+- [6. Deeply Nested Smart Components/ Component Design](#6-deeply-nested-smart-components-component-design)
+  - [6.1. Fixing the Event Bubbling Design Issue](#61-fixing-the-event-bubbling-design-issue)
 
 <!-- END doctoc generated TOC please keep comment here to allow auto update -->
 
@@ -47,9 +49,11 @@ YARN is reliable, fast, secure - guarantees that I can have the exact same depen
 
 - Run : ``ng new --skip-install rxjs-reactive-patterns`` to generate a simple, clean project structure, without dependencies
 
-- ``npm i yarn -g`` to install yarn globaly
+- ``npm i yarn -g`` to install yarn globally
 
--  ``yarn` after this to quickly install dependencies for this app via YARN
+-  `yarn` after this to quickly install dependencies for this app via YARN
+
+- restart your IDE if you're using it's terminal, to refresh project content
 
 ## 1.0. Development server
 
@@ -155,7 +159,7 @@ Whenever the SUBJECT has a change of internal state is going to notify the each 
 
 
 Analogies:  Subject         <---------> hoverSelection
-            
+
             registerEvent   <--------> addEventListener
 
             unregisterEvent <---------> removeEventListener
@@ -163,11 +167,11 @@ Analogies:  Subject         <---------> hoverSelection
             collection of observers <---------> registered callbacks for onMouseMove, onClick methods
 
             notify          <----------> call the callbacks of onMouseMove  directly
-             
+
             PUBLIC notifyObservers <---------> ! NO ANALOGIE - THIS IS A MAJOR DIFFERENCE -
 
             We are NOT ABLE TO TRIGGER EVENTS ON BEHALF OF THE BROWSER (the mouse movement, for example
-            
+
             is an internal implementation of the Browser, private!
 
 with the Observer Pattern, unlike the case of Browser Events any of the Observers can
@@ -233,15 +237,15 @@ EventBusExperiments component, only knows about the ``globalEventBus``.
  - change the collection of registered observers to be a map:
 
   ``{[key: string]: Observer[]} = {}``
-  
+
   - add a private method to have a list of observersPerEventType
 
   - filter the collection of registered observers by event type
 
   - use a copy of testLessons array, instead of the entier testLessons:
-  
+
   ``globalEventBus.notifyObservers(LESSONS_LIST_AVAILABLE, testLessons.slice(0));``
-   
+
 ## 2.5. An Application Implemented in non-reactive style
 
 ``git checkout -b custom-events-non-scalable``
@@ -252,10 +256,10 @@ EventBusExperiments component, only knows about the ``globalEventBus``.
 
   - tight coupling between LessonsComponent and the main component
 
-  - in the LessonsComponent we have a different array than the one from 
-  
+  - in the LessonsComponent we have a different array than the one from
+
   EventBusExperimentsComponent,
-  
+
   and that's why the operations implemented at the level of LessonsComponent won't propagate to the level of EventBusExperimentsComponent
 
  - define an inline Observer to add as second parameter to register an Observer of type ADD_NEW_LESSON EVENT:
@@ -386,7 +390,7 @@ Because the lessons data from the store is not immutable we use:
     broadcast() {
         this.lessonsListSubject.next(_.cloneDeep(this.lessons));
     }
-```    
+```
 
 and we have to make sure that no methods that mutate the data exist outside the STORE.
 
@@ -409,7 +413,7 @@ Angular CLI already added RxJs to app's package.json.
 
 Whenever we create an Observable in the app we need to specify what kind of data is the Observable emitting: `` Observable<Lesson[]>`` - in this case, a list of lessons.
 
-The Observable is directly connected to the Subject. 
+The Observable is directly connected to the Subject.
 
 ```TypeScript
     private lessons: Lesson[] = [];
@@ -492,7 +496,7 @@ In the component that renders the view logic ( ex: `home.component.ts`), subscri
 
 - use the injected Singleton instance (in this case, our Stateless Observable Service) in all components requiring the data
 
-- the view layer(component), receives data **independently of any timing condition** - that's because we consume  Stateless Observable Services, by subscribing to the Observables of the service 
+- the view layer(component), receives data **independently of any timing condition** - that's because we consume  Stateless Observable Services, by subscribing to the Observables of the service
 
 - so, no need for Maping and async of Promisses, instead we use Observables
 
@@ -510,7 +514,7 @@ In the component that renders the view logic ( ex: `home.component.ts`), subscri
 ```
 At that URl there is only one course, that's why we access with `map`, the first element of the set of values returned by the list method of AngularFireDatabase service.
 
-## 4.3. Service Layer API Design Short-Lived or Long-Lived Observables?
+## 4.3. Service Layer API Design: Short-Lived or Long-Lived Observables?
 
 In case we do not want the live connection between the database and the view layer, and the Observables returned by the service are *Long-Lived*( like the one of AngularFireBase) we apply the `first` method in the Observables returned by the service:
 
@@ -520,7 +524,7 @@ In case we do not want the live connection between the database and the view lay
         .first()
     }
 ```
-*Long-Lived* Observables are much more likely to accidentally create memory leaks, 
+*Long-Lived* Observables are much more likely to accidentally create memory leaks,
 
 depending on the way that we use them.
 
@@ -560,7 +564,7 @@ and use the template `noCourses` variable like this:
 
 We should respect the SINGLE RESPONSABILITY PRINCIPLE
 
-So, in our home page we can extract: 
+So, in our home page we can extract:
 
 - one SMART COMPONENT, that cannot be used in other parts of the app
 
@@ -578,15 +582,15 @@ knows how to fetch the data and what is the business meaning of the data
 
 `git checkout -b observable-data-services`
 
-Running `yarn` doesn't propely install the required modules;
-
 `npm i`, sometimes it fails on some modules, due to compatibilities issues,
 
- you have to run again `npm i` or run separatly, globaly some failing modules
+ you have to run again `npm i` or run separatly, globally some failing modules
+
+ - better run `yarn` for installing `node_modules`
 
 run: `npm install rxjs@6 rxjs-compat@6 promise-polyfill` to fix rxjs compatibilities issues
 
-`npm run rest-api` to start the rest server
+`npm run rest-api` from package.json's directory, to start the rest server
 
 `npm start` to serve the app
 
@@ -617,7 +621,7 @@ and in  the newsletter.component.ts:
 
 ``user$: Observable<User> = this.subject.asObservable()``
 
-- the `login` method returns a stream of data (Observable) and we **make sure** that the HTTP POST call, **first** completes, and then emits the value
+- the `login` method returns a stream of data (Observable) and we **make sure** that the HTTP POST call, **first** completes, and than emits the value
 
 - we manage **NOT TO** have multiple HTTP calls, by using ``.publishLast().refCount()``:
 
@@ -626,29 +630,66 @@ and in  the newsletter.component.ts:
     .map( response => response.json())
     .do(user => this.subject.next(user))
     .publishLast().refCount();
-```    
+```
 - in the userService we inject the HTTP Angular's service, wich is stateless:
 
 `` constructor(private http: Http) { }``
 
-- userService has no information obout who will consume the data in the app, it simply emits the data
+- userService has no information about who will consume the data in the app, it simply emits the data
 
-- to obtain a more specific (inner Observable) - only a specific course, from a more general Observable - all courses, we switchMap to the inner Observable:
+# 6. Deeply Nested Smart Components/ Component Design
+
+  ## 6.1. Fixing the Event Bubbling Design Issue
+
+  - to obtain a more specific (inner Observable) - only a specific course, from a more general Observable - all courses, we switchMap to the inner Observable:
 
 ```TypeScript
 this.course$ = this.route.params
       .switchMap( params => this.coursesService.findCourseByUrl(params['id']));
 ```
--  the component is only going to be re-rendered if there is a change in one of it's inputs: 
+-  the component is only going to be re-rendered if there is a change in one of it's inputs:
 
 ``changeDetection: ChangeDetectionStrategy.OnPush``
 
+To avoid bubbling deep down in the component tree and to avoid deeply nested components,
+
+if possible, we transform the presentational components (e.g. newsletter), into a smart components by injecting the required services(e.g. userService) and  removing the `@Input` and `@Output` fields from the upper components in the tree.
+
+Also remove the methods that were only there to bubble the events from the level of the leaf components in the componet tree.
+
+Whenever we subscribe to the `user$` Observable, we are going to initialize the value of the `firstName` property:
+
+```TypeScript
+    ngOnInit() {
+        this.userService.user$.subscribe(
+            user => this.firstname = user.firstName
+        )
+    }
+```
+
+- ``changeDetection: ChangeDetectionStrategy.OnPush`` triggers the re-rendering of components if:
+
+   - some input property changes
+   - an `@Output` event is emitted inside the component
+   - an Observable to witch the template of the component has subscribed to, using the ` | async` is changed
+
+   So if we have to declare all **changing fields** - getting data from a stream,  as Observables e.g:
+
+```TypeScript
+    firstName$: Observable<string>;
+
+    // and we get the data for this Observable by deriving it from user$ Observable, appling the map for each user emitted, we take only the firstName
+
+    ngOnInit() {
+        this.firstName$ = this.userService.user$.map(
+            user => user.firstName
+        )
+    }
+```
+  Conclusion: inject smart components, deep into the component tree, if that makes the implementation simpler.
 
 
 
-
-
-    
 
 
 
