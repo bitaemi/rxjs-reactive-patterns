@@ -1,0 +1,16 @@
+
+<div class="screen-container">
+    <button class="button button-primary mb-3" (click)="loginAsJohn()">Login as John</button>
+    <app-course-detail-header
+        [course]="course$ | async"
+        [lessons]="lessons$ | async"
+    >
+    </app-course-detail-header>
+    <app-lessons-list [lessons]="lessons$ | async"></app-lessons-list>
+
+    <div *ngIf="! lessons">
+        Loading ...
+    </div>
+
+</div>
+

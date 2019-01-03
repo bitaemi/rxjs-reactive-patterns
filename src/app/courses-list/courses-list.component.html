@@ -1,0 +1,18 @@
+<table class="courses-list card card-strong"
+       *ngIf="courses; else loadingCourses;">
+    <tr class="course-summary" *ngFor="let course of courses">
+        <td class="description">
+            {{course.description}}
+        </td>
+        <td>
+            <button class="button button-primary"
+                    [routerLink]="['/course',course.url]">
+                View
+            </button>
+        </td>
+    </tr>
+</table>
+
+<ng-template #loadingCourses>
+    <div>Loading ...</div>
+</ng-template>

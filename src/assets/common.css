@@ -1,3 +1,4 @@
+
 .course-container, .screen-container {
     max-width: 400px;
     margin: 0 auto;
@@ -42,16 +43,5 @@
 
 .newsletter {
     max-width: 300px;
-    margin: 0 auto 20px auto;
-}
-
-.loading-indicator {
-    width: 100%;
-    position: absolute;
-    text-align: center;
-}
-
-.loading-indicator img {
-    width: 75px;
-    margin-top: 100px;
+    margin: 0 auto;
 }

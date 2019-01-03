@@ -1,0 +1,14 @@
+
+<div class="course-md">
+
+    <h2>{{ (course$ | async)?.description }}</h2>
+
+    <div class="lessons-nav">
+        <button (click)="previousLessonsPage()">Previous</button>
+        <button (click)="nextLessonsPage()">Next</button>
+    </div>
+
+    <app-lessons-list [lessons]="lessons$ | async"></app-lessons-list>
+
+</div>
+
