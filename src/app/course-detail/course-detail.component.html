@@ -6,7 +6,7 @@
         [lessons]="lessons$ | async"
     >
     </app-course-detail-header>
-    <lessons-list [lessons]="lessons$ | async"></lessons-list>
+    <app-lessons-list [lessons]="lessons$ | async"></app-lessons-list>
 
     <div *ngIf="! lessons">
         Loading ...

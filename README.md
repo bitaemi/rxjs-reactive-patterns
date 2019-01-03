@@ -688,6 +688,51 @@ Whenever we subscribe to the `user$` Observable, we are going to initialize the 
 ```
   Conclusion: inject smart components, deep into the component tree, if that makes the implementation simpler.
 
+# 7. Implement a Data Table Pagination Service
+
+    This time we do not use the AngularFireBase, but an HTTP back-end that uses a db data stored in a JSON object on our server side.
+
+    The pagination logic will be present at the level of the service layer (LessonsPagerService)
+
+    If we need to load the pages eachtime from the server, we make the service stateless.
+
+    In case we have, for exapmle, a serchbox on the page with the `Next` and `Prev` buttons, we do not want to repeat the search
+
+    each time we click on another lesson, so we make the service statefull.
+
+   Restart the rest server at need: `nmp restart rest-api`
+
+   Hit the REST server with the following request:
+
+  `http://localhost:8090/api/lessons?courseId=1&pageNumber=1&pageSize=2` and the returned object is:
+
+```
+{"payload":
+    [
+        {
+            "url":"angular2-hello-world-write-first-application",
+            "description":"Angular Tutorial For Beginners - Build Your First App - Hello World Step By Step",
+            "seqNo":0,
+            "duration":"2:49"
+        },
+        {
+            "url":"angular2-build-your-first-component",
+            "description":"Building Your First Angular Component - Component Composition",
+            "seqNo":1,
+            "duration":"2:07"
+        }
+    ]
+}
+```
+
+
+
+
+
+
+
+
+
 
 
 
