@@ -1,8 +1,8 @@
 import {Component, OnInit, Input} from '@angular/core';
-import {Lesson} from "../shared/model/lesson";
+import {Lesson} from '../shared/model/lesson';
 
 @Component({
-  selector: 'lesson-detail',
+  selector: 'app-lesson-detail',
   templateUrl: './lesson-detail.component.html',
   styleUrls: ['./lesson-detail.component.css']
 })

@@ -21,7 +21,7 @@ export class UserService {
     const headers = new Headers();
 
     headers.append('Content-Type', 'application/json');
-    return this.http.post('/api/login', {email, password})
+    return this.http.post('/api/login', {email, password}, {headers})
     .map( response => response.json())
     .do(user => console.log(user))
     .do(user => this.subject.next(user))
