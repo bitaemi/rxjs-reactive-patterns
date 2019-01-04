@@ -8,7 +8,10 @@ import { LessonsPagerService } from 'app/services/lessons-pager.service';
 @Component({
     selector: 'app-course',
     templateUrl: './course.component.html',
-    styleUrls: ['./course.component.css']
+    styleUrls: ['./course.component.css'],
+    providers: [
+      LessonsPagerService
+    ]
 })
 export class CourseComponent implements OnInit, OnDestroy {
 
@@ -39,6 +42,7 @@ export class CourseComponent implements OnInit, OnDestroy {
     nextLessonsPage() {
         this.lessonsPager.next();
     }
+
     ngOnDestroy() {
         console.log('destroying CourseComponent ...');
     }
