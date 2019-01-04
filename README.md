@@ -35,6 +35,9 @@
 - [7. Implement a Data Table Pagination Service](#7-implement-a-data-table-pagination-service)
   - [7.1. The Local Service Design Pattern](#71-the-local-service-design-pattern)
 - [8. The Master Detail Design Pattern With Cached Master Table](#8-the-master-detail-design-pattern-with-cached-master-table)
+- [9. Error Handling in Reactive Applications](#9-error-handling-in-reactive-applications)
+- [10. Router Data Pre-Fetching, Loading Indicator and Container Components](#10-router-data-pre-fetching-loading-indicator-and-container-components)
+- [11. Leveraging Reactive Forms - Draft Pre-Saving](#11-leveraging-reactive-forms---draft-pre-saving)
 
 <!-- END doctoc generated TOC please keep comment here to allow auto update -->
 
@@ -874,4 +877,11 @@ is pointing to, are garbage collected - if we have not kept references to the da
 In general, we should not keep references to data in the app. Instead use the observables and the async pipe in templates,
 
 to AVOID MEMORY LEAKS.
+
+# 9. Error Handling in Reactive Applications
+
+# 10. Router Data Pre-Fetching, Loading Indicator and Container Components
+
+# 11. Leveraging Reactive Forms - Draft Pre-Saving
+
 

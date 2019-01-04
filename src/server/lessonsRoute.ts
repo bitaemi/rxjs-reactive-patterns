@@ -7,6 +7,13 @@ export function lessonsRoute(req, res) {
 
     console.log(req.query);
 
+    const random = Math.ceil(Math.random() * 10);
+
+    if (random % 2 === 1) {
+        res.sendStatus(500);
+        return;
+    }
+
     const courseId = parseInt(req.query['courseId']) - 1;
     const pageNumber = parseInt(req.query['pageNumber']);
     const pageSize = parseInt(req.query['pageSize']);
@@ -21,7 +28,6 @@ export function lessonsRoute(req, res) {
     res.status(200).json({payload: lessonsPage.map(buildLessonSummary)});
 
 }
-
 
 function buildLessonSummary({url, description, duration}, index) {
     return {
