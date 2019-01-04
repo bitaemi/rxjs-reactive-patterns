@@ -725,6 +725,20 @@ Whenever we subscribe to the `user$` Observable, we are going to initialize the 
 }
 ```
 
+Fix package vulnerabilities:
+
+For example, parsejson:
+
+ - see the dependency tree: `npm ls parsejson`
+
+ `-- karma@1.7.1
+  `-- socket.io@1.7.3
+    `-- socket.io-client@1.7.3
+      `-- engine.io-client@1.8.3
+        `-- parsejson@0.0.3
+
+ - `npm i karma@2.0.0`
+
 
 
 
