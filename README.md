@@ -34,6 +34,7 @@
   - [6.1. Fixing the Event Bubbling Design Issue](#61-fixing-the-event-bubbling-design-issue)
 - [7. Implement a Data Table Pagination Service](#7-implement-a-data-table-pagination-service)
   - [7.1. The Local Service Design Pattern](#71-the-local-service-design-pattern)
+- [8. The Master Detail Design Pattern With Cached Master Table](#8-the-master-detail-design-pattern-with-cached-master-table)
 
 <!-- END doctoc generated TOC please keep comment here to allow auto update -->
 
@@ -816,18 +817,61 @@ For example, parsejson:
 
  - `npm i karma@2.0.0`
 
+# 8. The Master Detail Design Pattern With Cached Master Table
 
+ - the `safeUrl` pipe has to be used with causion on url's that can be modified easily, and are not on server side
 
+ ```HTML
+ <div *ngIf="detail$ | async as lessonDetail else masterTemplate">
+        <button class="button button-active" (click)="backToMaster()">Back</button>
+        <app-lesson-detail [lesson]="lessonDetail"></app-lesson-detail>
+    </div>
 
+    <ng-template #masterTemplate>
+        ...
+        <app-lessons-list [lessons]="lessons$ | async" (selected)="selectedDetail($event)"></app-lessons-list>
+    </ng-template>
+```
+ - when the masterTemplate is hidden, the data is still kept in memory, at the level of LessonsPagerService, because
 
+    in the course component we have:
 
+```TypeScript
+// ..
 
+    detail$: Observable<Lesson>;
 
+    constructor(
+        private coursesService: CoursesHttpService,
+        private lessonsPager: LessonsPagerService) {
 
+    }
 
+    ngOnInit() {
+        this.course$ = this.coursesService.findCourseById(this.id);
+        this.lessons$ = this.lessonsPager.lessonsPage$;
 
+        //this lessons Observable holds the data of the last incoming stream remembered by the behavioral subject
 
+        this.lessonsPager.loadFirstPage(this.id);
 
+    }
+    selectedDetail(lesson: Lesson) {
+        this.detail$ = this.coursesService.findLessonDetailById(lesson.url);
+    }
 
+    backToMaster() {
+        this.detail$ = undefined;
+    }
+    // ..
+```
+When we navigate away from the page that displays the course component, the instances of course component will be distroyed,
 
+causing the destruction of it's locally declared service (LessonsPagerService) instances (the subject and the data that the subject
+
+is pointing to, are garbage collected - if we have not kept references to the data else where in the app).
+
+In general, we should not keep references to data in the app. Instead use the observables and the async pipe in templates,
+
+to AVOID MEMORY LEAKS.
 

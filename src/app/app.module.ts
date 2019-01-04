@@ -9,7 +9,6 @@ import { LessonsListComponent } from './lessons-list/lessons-list.component';
 import { LessonsCounterComponent } from './lessons-counter/lessons-counter.component';
 import { HomeComponent } from './home/home.component';
 import {firebaseConfig} from '../environments/firebase.config';
-import {AngularFireModule} from 'angularfire2';
 import {RouterModule} from '@angular/router';
 import {routerConfig} from './router.config';
 import { CourseDetailComponent } from './course-detail/course-detail.component';
@@ -20,15 +19,16 @@ import { NewsletterComponent } from './newsletter/newsletter.component';
 import {NewsletterService} from './services/newsletter.service';
 import { TopMenuComponent } from './top-menu/top-menu.component';
 import { LoginComponent } from './login/login.component';
-import {AngularFireDatabaseModule} from 'angularfire2/database';
-import {AngularFireAuthModule} from 'angularfire2/auth';
 import { UserService } from './services/user.service';
 import { CoursesHttpService } from './services/courses-http.service';
 import { AllLessonsComponent } from './all-lessons/all-lessons.component';
 import { LessonDetailComponent } from './lesson-detail/lesson-detail.component';
 import { CourseComponent } from './course/course.component';
 import { SafeUrlPipe } from './shared/pipes/safe-url.pipe';
-import { LessonsPagerService } from './services/lessons-pager.service';
+import { AngularFireModule } from '@angular/fire';
+import { AngularFireDatabaseModule } from '@angular/fire/database';
+import { AngularFireAuthModule } from '@angular/fire/auth';
+
 
 @NgModule({
   declarations: [
