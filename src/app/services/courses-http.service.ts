@@ -1,8 +1,8 @@
 import {Injectable} from '@angular/core';
-import {Http} from "@angular/http";
-import {Observable} from "rxjs";
-import {Course} from "../shared/model/course";
-import {Lesson} from "../shared/model/lesson";
+import {Http} from '@angular/http';
+import {Observable} from 'rxjs';
+import {Course} from '../shared/model/course';
+import {Lesson} from '../shared/model/lesson';
 
 
 
