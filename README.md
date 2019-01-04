@@ -32,6 +32,8 @@
 - [5. Observable Data Services](#5-observable-data-services)
 - [6. Deeply Nested Smart Components/ Component Design](#6-deeply-nested-smart-components-component-design)
   - [6.1. Fixing the Event Bubbling Design Issue](#61-fixing-the-event-bubbling-design-issue)
+- [7. Implement a Data Table Pagination Service](#7-implement-a-data-table-pagination-service)
+  - [7.1. The Local Service Design Pattern](#71-the-local-service-design-pattern)
 
 <!-- END doctoc generated TOC please keep comment here to allow auto update -->
 
@@ -724,6 +726,77 @@ Whenever we subscribe to the `user$` Observable, we are going to initialize the 
     ]
 }
 ```
+In the lessons-pager.service.ts:
+
+```TypeScript
+// ..
+
+    private static readonly PAGE_SIZE = 2;
+    private subject = new BehaviorSubject<Lesson[]>([]);
+    lessonsPage$: Observable<Lesson []> = this.subject.asObservable();
+    currentPageNumber = 1;
+    // ..
+    previous() {
+    this.currentPageNumber = (this.currentPageNumber > 1) ? (this.currentPageNumber -= 1) : this.currentPageNumber;
+    this.loadPage(this.currentPageNumber);
+  }
+
+  loadPage(pageNumber: number) {
+    this.http.get('/api/lessons', {
+      params: {
+        courseId: this.courseId,
+        pageNumber,
+        pageSize: LessonsPagerService.PAGE_SIZE
+      }
+    })
+    .map(res => res.json().payload)
+    .subscribe(
+      lessons => this.subject.next(lessons)
+    );
+  }
+```
+## 7.1. The Local Service Design Pattern
+
+ - at this point the service is Singleton, so if we create two instances of course component,
+
+  wich has injected this service, both these instances will share the same instance of the Global Singleton
+
+  (we have declared this service at the level of the application module, because we have included in the
+
+  **providers array**, in app.module.ts, the LessonsPagerService)
+
+  - so in such implementation we do not want this service global, but instead local, at the level of the component that uses it
+
+```TypeScript
+  @Component({
+    selector: 'app-course',
+    templateUrl: './course.component.html',
+    providers: [
+      LessonsPagerService
+    ]
+})
+```
+Declaring a **service locally** in a component, we are going to have, **for each instance of that component, a distict instance of the service**,
+
+and, obviously,that instance is visible only in a certion section of a page. And if those services happen to contain state that is used by that
+
+section of the page, that state will be destroyed when the component is itself destroyed.
+
+So the lifecycle of the service is tied to the lifecycle of the component - very **usefull for implementing statefull service**, such as lessons-pager.service,
+
+that is linked to a very specific section of the page. We can have state there, stored for  user experiece purposes and we don't have to worry
+
+about cleaning up that state, because **when the component is destroyed, also the locally declared service is destroyed** (navigating to another app's component,
+
+the `ngOnDestroy` is called) - the state will also be destroyed.
+
+So, any data that it would be holding, if it was a stateful service, like the case of the lessons.service, that data would also be garbage collected,
+
+if it wasn't being referenced by other parts of the application.
+
+Our biggest concern is to avoid keeping references to that state so that it doesn't stay in memory and ends up not being garbage collected.
+
+As seen above, the Angular Dependency Injection system is hierarchical, we do not have to define only global Singleton services.
 
 Fix package vulnerabilities:
 
@@ -731,13 +804,18 @@ For example, parsejson:
 
  - see the dependency tree: `npm ls parsejson`
 
- `-- karma@1.7.1
-  `-- socket.io@1.7.3
-    `-- socket.io-client@1.7.3
-      `-- engine.io-client@1.8.3
-        `-- parsejson@0.0.3
+        `-- karma@1.7.1
+
+        `-- socket.io@1.7.3
+
+            `-- socket.io-client@1.7.3
+
+            `-- engine.io-client@1.8.3
+
+                `-- parsejson@0.0.3
 
  - `npm i karma@2.0.0`
+
 
 
 
