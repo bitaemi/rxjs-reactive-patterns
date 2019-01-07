@@ -1,4 +1,4 @@
-import { Injectable } from '@angular/core';
+import { Injectable, OnDestroy } from '@angular/core';
 import { Observable, BehaviorSubject } from 'rxjs';
 import { Lesson } from 'app/shared/model/lesson';
 import { Http } from '@angular/http';
@@ -19,25 +19,25 @@ export class LessonsPagerService {
     console.log('an instance of lessons-pager servicce was created');
    }
 
-  loadFirstPage(courseId: number) {
+  loadFirstPage(courseId: number): Observable<any> {
     this.courseId = courseId;
     this.currentPageNumber = 1;
 
-    this.loadPage(this.currentPageNumber);
+    return this.loadPage(this.currentPageNumber);
   }
 
-  previous() {
+  previous(): Observable<any> {
     this.currentPageNumber = (this.currentPageNumber > 1) ? (this.currentPageNumber -= 1) : this.currentPageNumber;
-    this.loadPage(this.currentPageNumber);
+    return this.loadPage(this.currentPageNumber);
   }
 
-  next() {
+  next(): Observable<any> {
     this.currentPageNumber++;
-    this.loadPage(this.currentPageNumber);
+    return this.loadPage(this.currentPageNumber);
   }
 
-  loadPage(pageNumber: number) {
-    this.http.get('/api/lessons', {
+  loadPage(pageNumber: number): Observable<any> {
+    return this.http.get('/api/lessons', {
       params: {
         courseId: this.courseId,
         pageNumber,
@@ -45,9 +45,10 @@ export class LessonsPagerService {
       }
     })
     .map(res => res.json().payload)
-    .subscribe(
+    .do(
       lessons => this.subject.next(lessons)
-    );
+    )
+    .publishLast().refCount();
 
   }
 }

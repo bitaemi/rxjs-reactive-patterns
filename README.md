@@ -18,6 +18,8 @@
     - [2.4.2. Broadcast Application Data using the Global Event Bus](#242-broadcast-application-data-using-the-global-event-bus)
     - [2.4.3. Add Support for Different Types of Application Events](#243-add-support-for-different-types-of-application-events)
   - [2.5. An Application Implemented in non-reactive style](#25-an-application-implemented-in-non-reactive-style)
+- [3. Observable Pattern](#3-observable-pattern)
+  - [3.0. Observable Pattern - The Key Concept of Reactive Programming](#30-observable-pattern---the-key-concept-of-reactive-programming)
   - [3.1. Asynchronous Apps in Reactive Style](#31-asynchronous-apps-in-reactive-style)
   - [3.2. Fix a timing issue](#32-fix-a-timing-issue)
   - [3.3. Introduce in App a new Reactive Pattern: Centralized Store](#33-introduce-in-app-a-new-reactive-pattern-centralized-store)
@@ -40,6 +42,20 @@
 - [11. Leveraging Reactive Forms - Draft Pre-Saving](#11-leveraging-reactive-forms---draft-pre-saving)
 
 <!-- END doctoc generated TOC please keep comment here to allow auto update -->
+
+REACTIVE: {
+Reactive example : Microsoft EXCEL, everything in IT, nowdays is reactive interaction.
+
+reactive programming = dataflow computing
+
+Programming in reactive + functional style.
+
+functional = (functional composition + lazy evaluation);
+
+lazy evaluation == efficiency (avoiding things that shouldn't be done in the first place)
+
+do not expose your datatabase( never share databases!), instead export your data
+}
 
 Understanding the OBSERVABLE PATTERN is the key for understanding RxJs Library and using the operators to programm in a reactive style.
 
@@ -254,23 +270,21 @@ EventBusExperiments component, only knows about the ``globalEventBus``.
 
 ## 2.5. An Application Implemented in non-reactive style
 
-``git checkout -b custom-events-non-scalable``
+ ```git checkout -b custom-events-non-scalable```
 
-  - more than one component modifies the same data;
+- more than one component modifies the same data;
 
-  -there are multiple components in the application that are keeping a copy of ``Lessons[]``
+-there are multiple components in the application that are keeping a copy of ``Lessons[]``
 
-  - tight coupling between LessonsComponent and the main component
+- tight coupling between LessonsComponent and the main component
 
-  - in the LessonsComponent we have a different array than the one from
+- in the LessonsComponent we have a different array than the one from EventBusExperimentsComponent,
 
-  EventBusExperimentsComponent,
+and that's why the operations implemented at the level of LessonsComponent won't propagate to the level of EventBusExperimentsComponent
 
-  and that's why the operations implemented at the level of LessonsComponent won't propagate to the level of EventBusExperimentsComponent
+- define an inline Observer to add as second parameter to register an Observer of type ADD_NEW_LESSON EVENT:
 
- - define an inline Observer to add as second parameter to register an Observer of type ADD_NEW_LESSON EVENT:
-
- ```TypeScript
+```TypeScript
   globalEventBus.registerObserver(ADD_NEW_LESSON, {
       notify: lessonText => {
         this.lessons.push({
@@ -280,11 +294,14 @@ EventBusExperiments component, only knows about the ``globalEventBus``.
       }
     });
 ```
+
 - shared data and no clear owner => issues whith DATA ENCAPSULATION
 
-DO NOT USE SUCH IMPLEMENTATION, LIKE THE ONE FROM `custom-events-non-scalable` branch!!!
+DO NOT USE SUCH IMPLEMENTATION, LIKE THE ONE FROM `custom-events-non-scalable` branch!
 
-# 3. OBSERVABLE PATTERN - The Key Concept of Reactive Programming
+# 3. Observable Pattern
+
+## 3.0. Observable Pattern - The Key Concept of Reactive Programming
 
 The main issue with OBSERVER Pattern, as seen above, is that there is no clear separation between registering to get data(`registerObserver`) and the ability to emit that same data(`notifyObservers`) because each observer has access to the SUBJECT- but what we need is that only certain part of the application  should be able to emit certain events!
 
@@ -629,7 +646,7 @@ and in  the newsletter.component.ts:
 
 - the `login` method returns a stream of data (Observable) and we **make sure** that the HTTP POST call, **first** completes, and than emits the value
 
-- we manage **NOT TO** have multiple HTTP calls, by using ``.publishLast().refCount()``:
+- we manage **NOT TO** have multiple HTTP calls (guard against the posibility of multiple subscriptions to the Observable), by using ``.publishLast().refCount()``:
 
 ```TypeScript
     return this.http.post('/api/login', {email, password})
@@ -880,7 +897,62 @@ to AVOID MEMORY LEAKS.
 
 # 9. Error Handling in Reactive Applications
 
+We might be tempted to make use of the `error` method of `subject` object, to capture errors at http requests:
+
+```TypeScript
+// WRONG IMPLEMENTATION:
+
+this.http.get(
+    // ...
+    )
+    .map(
+        // ...
+    )
+    .subscribe(
+      // ...
+      err => this.subject.error(err)
+    );
+```
+but this will break subject's functionality: as soon as the subject gets errored one first time, according to the Observable's
+
+contract, we cannot emit values again. So, we **DO NOT ERROR THE OBSERVABLE FROM THE LEVEL OF THE SERVICE**, instead we
+
+**capture errors, at the level of the component that needs to render the errors**, exactly at the specific call to the service (specific error messages in each component).
+
+We refactor service's methods  to return Observables, and at the level of component we call service's methods, by subscribing to the observables,
+
+that allows us to see if the operations suceeded or failed.
+
+WE STILL EMIT THE lessons-pager Observable, to any part af the app that is subscribed to it, by appling `do`, instead of `subscribe`:
+
+```TypeScript
+// keep emmiting lessons-pager Observable
+
+this.http.get(
+    // ...
+    )
+    .map(
+        // ...
+    )
+    .do(
+      lessons => this.subject.next(lessons)
+    );
+```
+ However, refactoring has to go furter, to the **error handling messages system** = (a component for displaing messages + a global singleton service).
+
+Each value emitted by `errors$` Observable is an array of strings - each string will be an error message:
+
+```  errors$: Observable<string[]> ```
+
+and in the error-messages component's template, iterate over the output of the Observable:
+
+``` <div *ngFor="let message of (messages$ | async)">messages</div>```
+
+In the component that we need to render the error-messages component we inject the service and also, declare the error-messages.service in providers array, thus overwriting the global behavior of the service, with a local behavior.
+
 # 10. Router Data Pre-Fetching, Loading Indicator and Container Components
+
+
 
 # 11. Leveraging Reactive Forms - Draft Pre-Saving
 

@@ -8,15 +8,15 @@ import { EventBusExperimentsComponent } from './event-bus-experiments/event-bus-
 import { LessonsListComponent } from './lessons-list/lessons-list.component';
 import { LessonsCounterComponent } from './lessons-counter/lessons-counter.component';
 import { HomeComponent } from './home/home.component';
-import {firebaseConfig} from '../environments/firebase.config';
-import {RouterModule} from '@angular/router';
-import {routerConfig} from './router.config';
+import { firebaseConfig } from '../environments/firebase.config';
+import { RouterModule } from '@angular/router';
+import { routerConfig } from './router.config';
 import { CourseDetailComponent } from './course-detail/course-detail.component';
-import {CoursesService} from './services/courses.service';
+import { CoursesService } from './services/courses.service';
 import { CoursesListComponent } from './courses-list/courses-list.component';
 import { CourseDetailHeaderComponent } from './course-detail-header/course-detail-header.component';
 import { NewsletterComponent } from './newsletter/newsletter.component';
-import {NewsletterService} from './services/newsletter.service';
+import { NewsletterService } from './services/newsletter.service';
 import { TopMenuComponent } from './top-menu/top-menu.component';
 import { LoginComponent } from './login/login.component';
 import { UserService } from './services/user.service';
@@ -28,7 +28,9 @@ import { SafeUrlPipe } from './shared/pipes/safe-url.pipe';
 import { AngularFireModule } from '@angular/fire';
 import { AngularFireDatabaseModule } from '@angular/fire/database';
 import { AngularFireAuthModule } from '@angular/fire/auth';
-
+import { ErrorMessagesComponent } from './error-messages/error-messages.component';
+import { ErrorMessagesService } from './services/error-messages.service';
+import { AppBootstrapModule } from 'app.bootstrap.module';
 
 @NgModule({
   declarations: [
@@ -48,12 +50,14 @@ import { AngularFireAuthModule } from '@angular/fire/auth';
     LessonDetailComponent,
     CourseComponent,
     LessonDetailComponent,
-    SafeUrlPipe
+    SafeUrlPipe,
+    ErrorMessagesComponent
   ],
   imports: [
     BrowserModule,
     FormsModule,
     HttpModule,
+    AppBootstrapModule,
     AngularFireModule.initializeApp(firebaseConfig),
     AngularFireDatabaseModule,
     AngularFireAuthModule,
@@ -63,7 +67,8 @@ import { AngularFireAuthModule } from '@angular/fire/auth';
       CoursesService,
       NewsletterService,
       UserService,
-      CoursesHttpService
+      CoursesHttpService,
+      ErrorMessagesService
   ],
   bootstrap: [AppComponent]
 })
