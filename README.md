@@ -46,7 +46,7 @@
 REACTIVE: {
 Reactive example : Microsoft EXCEL, everything in IT, nowdays is reactive interaction.
 
-reactive programming = dataflow computing
+reactive programming = dataflow computing <-> OBSERVABLE == STREAM OF DATA
 
 Programming in reactive + functional style.
 
@@ -952,8 +952,94 @@ In the component that we need to render the error-messages component we inject t
 
 # 10. Router Data Pre-Fetching, Loading Indicator and Container Components
 
+Extract the logic for fetching the data from the service layer and move it to a **router data resolver**.
+
+The data `Resolve`, is a tuple that contains both course and lessons info:
+
+```TypeScript
+@Injectable()
+export class CourseDetailResolver implements Resolve<[Course, (Lesson[])]> {
+    constructor(private coursesService: CoursesService) {
+
+    }
+
+    resolve(
+        route: ActivatedRouteSnapshot,
+        state: RouterStateSnapshot): Observable<[Course, (Lesson[])]> {
+
+// we have the course id at the level of the ActivatedRouteSnapshot:
+            return this.coursesService.findCourseByUrl(route.params['id'])
+            /* the swichMap is going to wait for the new value emitted, and
+
+            after that is going to swich into another observable
+            but we do not swith directly, first the returned observable that will be a stream of lessons
+
+            will be mapped to the tuple containig the course with it's lessons
+            */
+            .switchMap(
+                course => this.coursesService.findLessonsForCourse(course.id)
+                .map(lessons => <any>[course, lessons])
+            );
+        }
+
+}
+```
+
+Inject de resolver into app.module's providers array.
+
+Add the resover in routerConfig:
+
+```TypeScript
+    {
+        path: 'course/:id',
+        component: CourseDetailComponent,
+        resolve: {
+            detail: CourseDetailResolver
+        }
+    },
+```
+this associates the `detail ` data property, to the resolver - will populate the `detail` data.
+
+We are going to use the `detail` data, in the rendering component(course-detail component), like this:
+
+```TypeScript
+  ngOnInit() {
+      //first part of the Observable tuple is the course:
+    this.course$ = this.route.data.map(data => data['detail'][0]);
+    this.lessons$ = this.route.data.map(data => data['detail'][1]);
+  }
+```
+The course-detail component is transformed from the previously implementation
+
+as a smart component, into a PLAIN CONTAINER COMPONENT. It simply gets the `ActivatedRoute` injected.
+
+So, at the transition from HOME screen to course screen is going to load the
+
+data tuple(`Observable<[Course, (Lesson[])]>`) returned by the `resolve` method of `CourseDetailResolver`.
+
+the `this.route.data` is actually the observable.
+
+The `resolve` method of `CourseDetailResolver`:
+
+- makes a request to retrive the course by the url
+
+- keeps the result
+
+- makes a second request to fin the lessons for the course
+
+- once the lessons for the course return, a tuple is emitted (`Observable<[Course, (Lesson[])]>`)
+
+So:
+
+- the router will wait for this observable to meet its first value and then complete
+
+- after this the router is going to trigger the transition:
+
+the course-detail will have access to the data, via the `data` Observable
+
+The loading component
 
 
-# 11. Leveraging Reactive Forms - Draft Pre-Saving
+# 11. Laveraging Reactive Forms - Draft Pre-Saving
 
 
