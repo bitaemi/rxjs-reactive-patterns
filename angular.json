@@ -3,7 +3,7 @@
   "version": 1,
   "newProjectRoot": "projects",
   "projects": {
-    "reactive-patterns-course": {
+    "reactive-patterns-rxjs": {
       "root": "",
       "sourceRoot": "src",
       "projectType": "application",
@@ -30,14 +30,14 @@
         "serve": {
           "builder": "@angular-devkit/build-angular:dev-server",
           "options": {
-            "browserTarget": "reactive-patterns-course:build"
+            "browserTarget": "reactive-patterns-rxjs:build"
           },
           "configurations": {}
         },
         "extract-i18n": {
           "builder": "@angular-devkit/build-angular:extract-i18n",
           "options": {
-            "browserTarget": "reactive-patterns-course:build"
+            "browserTarget": "reactive-patterns-rxjs:build"
           }
         },
         "test": {
@@ -67,7 +67,7 @@
         }
       }
     },
-    "reactive-patterns-course-e2e": {
+    "reactive-patterns-rxjs-e2e": {
       "root": "",
       "sourceRoot": "",
       "projectType": "application",
@@ -76,7 +76,7 @@
           "builder": "@angular-devkit/build-angular:protractor",
           "options": {
             "protractorConfig": "./protractor.conf.js",
-            "devServerTarget": "reactive-patterns-course:serve"
+            "devServerTarget": "reactive-patterns-rxjs:serve"
           }
         },
         "lint": {
@@ -91,7 +91,7 @@
       }
     }
   },
-  "defaultProject": "reactive-patterns-course",
+  "defaultProject": "reactive-patterns-rxjs",
   "schematics": {
     "@schematics/angular:component": {
       "prefix": "app",

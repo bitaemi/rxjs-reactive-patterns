@@ -1,0 +1,8 @@
+<div class="message-frame" *ngIf="(errors$ | async)?.length > 0">
+  <div class="messages messages-error">
+    <i class="md-icon close-icon" (click)="close()">close</i>
+    <div class="messages-container">
+      <div *ngFor="let message of (errors$ | async)"> {{ message }}</div>
+    </div>
+  </div>
+</div>
