@@ -31,6 +31,8 @@ import { AngularFireAuthModule } from '@angular/fire/auth';
 import { ErrorMessagesComponent } from './error-messages/error-messages.component';
 import { ErrorMessagesService } from './services/error-messages.service';
 import { AppBootstrapModule } from 'app.bootstrap.module';
+import { CourseDetailResolver } from './course-detail/course-detail.resolver';
+import { LoadingComponent } from './loading/loading.component';
 
 @NgModule({
   declarations: [
@@ -51,7 +53,8 @@ import { AppBootstrapModule } from 'app.bootstrap.module';
     CourseComponent,
     LessonDetailComponent,
     SafeUrlPipe,
-    ErrorMessagesComponent
+    ErrorMessagesComponent,
+    LoadingComponent
   ],
   imports: [
     BrowserModule,
@@ -68,7 +71,8 @@ import { AppBootstrapModule } from 'app.bootstrap.module';
       NewsletterService,
       UserService,
       CoursesHttpService,
-      ErrorMessagesService
+      ErrorMessagesService,
+      CourseDetailResolver
   ],
   bootstrap: [AppComponent]
 })

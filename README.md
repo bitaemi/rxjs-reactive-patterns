@@ -3,12 +3,6 @@
 **Table of Contents**  *generated with [DocToc](https://github.com/thlorenz/doctoc)*
 
 - [1. Installation and start up](#1-installation-and-start-up)
-  - [1.0. Development server](#10-development-server)
-  - [1.1. Code scaffolding](#11-code-scaffolding)
-  - [1.2. Build](#12-build)
-  - [1.3. Running unit tests](#13-running-unit-tests)
-  - [1.4. Running end-to-end tests](#14-running-end-to-end-tests)
-  - [1.5. Further help](#15-further-help)
 - [2. Reactive programming](#2-reactive-programming)
   - [2.1. Reactive Properties of Browser Events](#21-reactive-properties-of-browser-events)
   - [2.2. Relation Between Custom Application Events and Observer Pattern](#22-relation-between-custom-application-events-and-observer-pattern)
@@ -39,14 +33,14 @@
 - [8. The Master Detail Design Pattern With Cached Master Table](#8-the-master-detail-design-pattern-with-cached-master-table)
 - [9. Error Handling in Reactive Applications](#9-error-handling-in-reactive-applications)
 - [10. Router Data Pre-Fetching, Loading Indicator and Container Components](#10-router-data-pre-fetching-loading-indicator-and-container-components)
-- [11. Leveraging Reactive Forms - Draft Pre-Saving](#11-leveraging-reactive-forms---draft-pre-saving)
+- [11. Laveraging Reactive Forms - Draft Pre-Saving](#11-laveraging-reactive-forms---draft-pre-saving)
 
 <!-- END doctoc generated TOC please keep comment here to allow auto update -->
 
 REACTIVE: {
 Reactive example : Microsoft EXCEL, everything in IT, nowdays is reactive interaction.
 
-reactive programming = dataflow computing
+reactive programming = dataflow computing <-> OBSERVABLE == STREAM OF DATA
 
 Programming in reactive + functional style.
 
@@ -77,27 +71,27 @@ YARN is reliable, fast, secure - guarantees that I can have the exact same depen
 
 - restart your IDE if you're using it's terminal, to refresh project content
 
-## 1.0. Development server
+1.0. Development server
 
 Run `ng serve` for a dev server. Navigate to `http://localhost:4200/`. The app will automatically reload if you change any of the source files.
 
-## 1.1. Code scaffolding
+1.1. Code scaffolding
 
 Run `ng generate component component-name` to generate a new component. You can also use `ng generate directive|pipe|service|class|guard|interface|enum|module`.
 
-## 1.2. Build
+1.2. Build
 
 Run `ng build` to build the project. The build artifacts will be stored in the `dist/` directory. Use the `--prod` flag for a production build.
 
-## 1.3. Running unit tests
+1.3. Running unit tests
 
 Run `ng test` to execute the unit tests via [Karma](https://karma-runner.github.io).
 
-## 1.4. Running end-to-end tests
+1.4. Running end-to-end tests
 
 Run `ng e2e` to execute the end-to-end tests via [Protractor](http://www.protractortest.org/).
 
-## 1.5. Further help
+1.5. Further help
 
 To get more help on the Angular CLI use `ng help` or go check out the [Angular CLI README](https://github.com/angular/angular-cli/blob/master/README.md).
 
@@ -952,8 +946,132 @@ In the component that we need to render the error-messages component we inject t
 
 # 10. Router Data Pre-Fetching, Loading Indicator and Container Components
 
+Benefits of router data pre-fetching:
+
+- improved user experience : we wait for the data to load when navigating to a new page,
+
+we show the loading indicator untill gathering the data for the target screen and when we display the target screen,
+
+we hide the data;
+
+- if the data loading operation fails we can still show an error message on the search screen.
+
+- we can have a loading indicator at a central place and use it in multiple places in the app
+
+Extract the logic for fetching the data from the service layer and move it to a **router data resolver**.
+
+The data `Resolve`, is a tuple that contains both course and lessons info:
+
+```TypeScript
+@Injectable()
+export class CourseDetailResolver implements Resolve<[Course, (Lesson[])]> {
+    constructor(private coursesService: CoursesService) {
+
+    }
+
+    resolve(
+        route: ActivatedRouteSnapshot,
+        state: RouterStateSnapshot): Observable<[Course, (Lesson[])]> {
+
+// we have the course id at the level of the ActivatedRouteSnapshot:
+            return this.coursesService.findCourseByUrl(route.params['id'])
+            /* the swichMap is going to wait for the new value emitted, and
+
+            after that is going to swich into another observable
+            but we do not swith directly, first the returned observable that will be a stream of lessons
+
+            will be mapped to the tuple containig the course with it's lessons
+            */
+            .switchMap(
+                course => this.coursesService.findLessonsForCourse(course.id)
+                .map(lessons => <any>[course, lessons])
+            );
+        }
+
+}
+```
+
+Inject de resolver into app.module's providers array.
+
+Add the resover in routerConfig:
+
+```TypeScript
+    {
+        path: 'course/:id',
+        component: CourseDetailComponent,
+        resolve: {
+            detail: CourseDetailResolver
+        }
+    },
+```
+this associates the `detail ` data property, to the resolver - will populate the `detail` data.
+
+We are going to use the `detail` data, in the rendering component(course-detail component), like this:
+
+```TypeScript
+  ngOnInit() {
+      //first part of the Observable tuple is the course:
+    this.course$ = this.route.data.map(data => data['detail'][0]);
+    this.lessons$ = this.route.data.map(data => data['detail'][1]);
+  }
+```
+The course-detail component is transformed from the previously implementation
+
+as a smart component, into a PLAIN CONTAINER COMPONENT. It simply gets the `ActivatedRoute` injected.
+
+So, at the transition from HOME screen to course screen is going to load the
+
+data tuple(`Observable<[Course, (Lesson[])]>`) returned by the `resolve` method of `CourseDetailResolver`.
+
+the `this.route.data` is actually the observable.
+
+The `resolve` method of `CourseDetailResolver`:
+
+- makes a request to retrive the course by the url
+
+- keeps the result
+
+- makes a second request to fin the lessons for the course
+
+- once the lessons for the course return, a tuple is emitted (`Observable<[Course, (Lesson[])]>`)
+
+So:
+
+- the router will wait for this observable to meet its first value and then complete
+
+- after this the router is going to trigger the transition:
+
+the course-detail will have access to the data, via the `data` Observable
+
+The loading component:
 
 
-# 11. Leveraging Reactive Forms - Draft Pre-Saving
+```TypeScript
+// ..
+export class LoadingComponent implements OnInit {
+  loading$: Observable<boolean>;
+  constructor(private router: Router) {
+
+  }
+
+  ngOnInit() {
+      /*the loading Observable will get the value from the events Observable of the
+      router, after appling the map method that returns true or false, depending on the router event type*/
+    this.loading$ = this.router.events
+    .map( event => event instanceof NavigationStart ||
+                    event instanceof RoutesRecognized);
+  }
+```
+
+We want to hide the loading indicator in most cases but, if the
+
+navigation is started or if the routes have been validated as valid routes,
+
+we want the loading indicator to be shown. If the navigation end or in any other cases we want the loading
+
+indicator to be hidden.
+
+
+# 11. Laveraging Reactive Forms - Draft Pre-Saving
 
 

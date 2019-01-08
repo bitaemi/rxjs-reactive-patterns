@@ -3,9 +3,8 @@ import {ActivatedRoute} from '@angular/router';
 import {Course} from '../shared/model/course';
 import {Lesson} from '../shared/model/lesson';
 import * as _ from 'lodash';
-import {CoursesService} from '../services/courses.service';
-import { UserService } from 'app/services/user.service';
 import { Observable } from 'rxjs';
+import { UserService } from 'app/services/user.service';
 
 
 @Component({
@@ -19,18 +18,12 @@ export class CourseDetailComponent implements OnInit {
   lessons$: Observable<Lesson[]>;
 
   constructor(private route: ActivatedRoute,
-              private coursesService: CoursesService,
-              private userService: UserService) {
+    private userService: UserService) {
   }
 
   ngOnInit() {
-      this.course$ = this.route.params
-      .switchMap( params => this.coursesService.findCourseByUrl(params['id']))
-      .first()
-      .publishLast().refCount();
-
-      this.lessons$ = this.course$
-      .switchMap(course => this.coursesService.findLessonsForCourse(course.id));
+    this.course$ = this.route.data.map(data => data['detail'][0]);
+    this.lessons$ = this.route.data.map(data => data['detail'][1]);
   }
 
   loginAsJohn() {
