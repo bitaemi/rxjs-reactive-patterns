@@ -946,6 +946,7 @@ In the component that we need to render the error-messages component we inject t
 
 # 10. Router Data Pre-Fetching, Loading Indicator and Container Components
 
+
 Benefits of router data pre-fetching:
 
 - improved user experience : we wait for the data to load when navigating to a new page,
@@ -962,6 +963,7 @@ Extract the logic for fetching the data from the service layer and move it to a 
 
 The data `Resolve`, is a tuple that contains both course and lessons info:
 
+
 ```TypeScript
 @Injectable()
 export class CourseDetailResolver implements Resolve<[Course, (Lesson[])]> {
@@ -973,7 +975,7 @@ export class CourseDetailResolver implements Resolve<[Course, (Lesson[])]> {
         route: ActivatedRouteSnapshot,
         state: RouterStateSnapshot): Observable<[Course, (Lesson[])]> {
 
-// we have the course id at the level of the ActivatedRouteSnapshot:
+            // we have the course id at the level of the ActivatedRouteSnapshot:
             return this.coursesService.findCourseByUrl(route.params['id'])
             /* the swichMap is going to wait for the new value emitted, and
 
