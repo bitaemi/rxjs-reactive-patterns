@@ -1,6 +1,6 @@
 import { BrowserModule } from '@angular/platform-browser';
 import { NgModule } from '@angular/core';
-import { FormsModule } from '@angular/forms';
+import { FormsModule, ReactiveFormsModule } from '@angular/forms';
 import { HttpModule } from '@angular/http';
 import { AppComponent } from './app.component';
 import { BrowserEventExperimentsComponent } from './browser-event-experiments/browser-event-experiments.component';
@@ -33,6 +33,7 @@ import { ErrorMessagesService } from './services/error-messages.service';
 import { AppBootstrapModule } from 'app.bootstrap.module';
 import { CourseDetailResolver } from './course-detail/course-detail.resolver';
 import { LoadingComponent } from './loading/loading.component';
+import { CreateLessonComponent } from './create-lesson/create-lesson.component';
 
 @NgModule({
   declarations: [
@@ -54,7 +55,8 @@ import { LoadingComponent } from './loading/loading.component';
     LessonDetailComponent,
     SafeUrlPipe,
     ErrorMessagesComponent,
-    LoadingComponent
+    LoadingComponent,
+    CreateLessonComponent
   ],
   imports: [
     BrowserModule,
@@ -65,6 +67,7 @@ import { LoadingComponent } from './loading/loading.component';
     AngularFireDatabaseModule,
     AngularFireAuthModule,
     RouterModule.forRoot(routerConfig),
+    ReactiveFormsModule
   ],
   providers: [
       CoursesService,

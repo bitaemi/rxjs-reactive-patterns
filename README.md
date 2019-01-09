@@ -34,6 +34,7 @@
 - [9. Error Handling in Reactive Applications](#9-error-handling-in-reactive-applications)
 - [10. Router Data Pre-Fetching, Loading Indicator and Container Components](#10-router-data-pre-fetching-loading-indicator-and-container-components)
 - [11. Laveraging Reactive Forms - Draft Pre-Saving](#11-laveraging-reactive-forms---draft-pre-saving)
+- [12. Conclusion](#12-conclusion)
 
 <!-- END doctoc generated TOC please keep comment here to allow auto update -->
 
@@ -478,7 +479,7 @@ Imperative:
 
 layer and view layer;
 
-- in couse-detail we encounter an **ANTIPATTERN: NESTED `.subscribe`**
+- in couse-detail we encounter an **ANTI-PATTERN: NESTED `.subscribe`**
 
 Reactive:
 
@@ -1080,4 +1081,72 @@ indicator to be hidden.
 
 # 11. Laveraging Reactive Forms - Draft Pre-Saving
 
+Let's say we need Draft pre-saveing for a form (create lesson form). If the user navigates to another page in the site,
 
+in the middle of form fields completion, when coming back to form's page, we want the user to see the fields that he previously
+
+completed. So, we have to save a draft, without saveing the form to the server. This functuonality is hard to implement without
+
+reactive programming.
+
+Implementation:
+
+- Add to app.module's `imports` array the `ReactiveFormsModule` to be able to use `[FormGroup]` directive in template
+
+```TypeScript
+    ngOnInit() {
+        // capture the stream of value changes only for valid field completion
+        //and save those valid values to a cookie
+
+        this.form.valueChanges
+        //filter is applied to the Observable to only emit the value is the form is currently valid
+        .filter(() => this.form.valid)
+        .subscribe(console.log);
+    }
+```
+once we have these valid values being captured by this observable, we're going to save the form values
+
+to a cookie, so that whenever the user goes to another screen and comes back here, to
+
+this form screen, we will have somewhere this data saved we will be able to retrieve it from the cookie
+
+and set it in the form.
+
+- add the library for saveing and retrieving cookies at the level of the browser: `yarn add cookies-js`
+
+```TypeScript
+        const draft = Cookies.get(CreateLessonComponent.DRAFT_COOKIE);
+        // when we access component page and we already have the valueChanges saved in the cookie
+        // we set those values into the form - OVERWRITE the hall form
+        if (draft) {
+            // deserialize the JSON string into an in memory JavaScript Object
+            this.form.setValue(JSON.parse(draft));
+        }
+        this.form.valueChanges
+        .filter(() => this.form.valid)
+        // the valid value emitted by the observable is saved to a local cookie - DRAFT COOKIE
+        .do(validValue => Cookies.set(
+            CreateLessonComponent.DRAFT_COOKIE,
+            JSON.stringify(validValue)))
+        .subscribe(console.log);
+    }
+```
+In the same reactive way we can pre-save the draft on server  side.
+
+# 12. Conclusion
+
+RxJs and Reactive Programming as a style of developing asynchronous applications in a maintenable way.
+
+We use a set of design patterns to cope with aynchronicity un the best way possible, in the most maintainable way.
+
+Different approach than using generators + async (apparently seqvential programming);
+
+The core design pattern is the Observable Pattern. We split the app in multiple parts that will interact with
+
+each other in a de-coupled way, by exposing some data that they all own control of.
+
+So other parts of the application will subscribe to that data.
+
+They will not be able to modify the data themselves but they can subscribe to a certain type of data
+
+that is emitted by a certain part of the application.
