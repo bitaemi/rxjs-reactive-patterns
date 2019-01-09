@@ -1,0 +1,31 @@
+<div class="screen-container">
+
+    <h2>Create New Lesson</h2>
+
+    <form [formGroup]="form" autocomplete="off" class="lesson-form">
+
+        <fieldset>
+            <legend>Lesson</legend>
+            <div class="form-field">
+                <label>Description:</label>
+                <input name="title" formControlName="description">
+            </div>
+            <div class="form-field">
+                <label>Lesson Url:</label>
+                <input name="title" formControlName="url">
+            </div>
+            <div class="form-field">
+                <label>Long Description:</label>
+                <textarea name="description" formControlName="longDescription"></textarea>
+            </div>
+        </fieldset>
+
+        <div class="form-buttons">
+
+            <button class="button button-primary">Save New Lesson</button>
+
+        </div>
+
+    </form>
+
+</div>
