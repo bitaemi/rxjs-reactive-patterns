@@ -15,7 +15,10 @@ export class LoadingComponent implements OnInit {
 
   ngOnInit() {
     this.loading$ = this.router.events
-    .map( event => true);
+
+    .map( event => event instanceof NavigationStart ||
+                    event instanceof RoutesRecognized);
+
   }
 
 }
