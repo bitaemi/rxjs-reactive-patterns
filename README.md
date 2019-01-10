@@ -38,7 +38,9 @@
 
 <!-- END doctoc generated TOC please keep comment here to allow auto update -->
 
-REACTIVE: {
+REACTIVE:
+
+{
 
  - WHY: scale insanely, reduce latency
 
@@ -50,9 +52,10 @@ REACTIVE: {
 
  - functional = (functional composition + lazy evaluation);
 
-- lazy evaluation == efficiency (avoiding things that shouldn't be done in the first place)
+ - lazy evaluation == efficiency (avoiding things that shouldn't be done in the first place)
 
-do not expose your datatabase( never share databases!), instead export your data
+ - do not expose your datatabase( never share databases!), instead export your data
+
 }
 
 Understanding the OBSERVABLE PATTERN is the key for understanding RxJs Library and using the operators to programm in a reactive style.
@@ -1083,11 +1086,11 @@ indicator to be hidden.
 
 Let's say we need Draft pre-saveing for a form (create lesson form). If the user navigates to another page in the site,
 
-in the middle of form fields completion, when coming back to form's page, we want the user to see the fields that he previously
+in the middle of form fields completion, when coming back to form's page, we want the user to see the fields that
 
-completed. So, we have to save a draft, without saveing the form to the server. This functuonality is hard to implement without
+he previously completed. So, we have to save a draft, without saveing the form to the server.
 
-reactive programming.
+This functuonality is hard to implement without reactive programming.
 
 Implementation:
 
@@ -1135,18 +1138,50 @@ In the same reactive way we can pre-save the draft on server  side.
 
 # 12. Conclusion
 
-RxJs and Reactive Programming as a style of developing asynchronous applications in a maintenable way.
+- Reactive Programming as a style of developing asynchronous applications in a maintenable way.
 
-We use a set of design patterns to cope with aynchronicity un the best way possible, in the most maintainable way.
+- We use a set of design patterns to cope with asynchronicity in the best way possible, in the most maintainable way.
 
-Different approach than using generators + async (apparently seqvential programming);
+- A different approach than using generators + async (apparently seqvential programming);
 
-The core design pattern is the Observable Pattern. We split the app in multiple parts that will interact with
+- The core design pattern is the Observable Pattern. The way that this pattern works is:
 
-each other in a de-coupled way, by exposing some data that they all own control of.
+- we split the app in multiple parts that will interact with each other in a **de-coupled way**,
 
-So other parts of the application will subscribe to that data.
+by exposing some data that they own control of.
 
-They will not be able to modify the data themselves but they can subscribe to a certain type of data
+- other parts of the application will subscribe to that data, they will not be able to modify the data themselves,
 
-that is emitted by a certain part of the application.
+but they can subscribe to a certain type of data that is emitted by a certain part of the application.
+
+- if a part of the app modifies the data that it owns is going to broadcast that change to the other parts of the app,
+
+those subscribed to that data.
+
+- whoever broadcasts the data modification is not aware of what other parts of the system are going to receive the data and what are going to do with it.
+
+- they simply know that a new version of data needs to be emitted
+
+- On the other hand a part of the application that receives a new version of the data that it has subscribed
+
+to will react to the arrival of the new data, for example displaying the data on the screen but it will have no
+
+information about what triggered the modification of that data or what part of the application caused it.
+
+- the modification of the data is done by the **subject** which is an **EVENT BUS**,  is meant to be kept **private** to the
+
+part of the application that owns the data, unless our intention is to create a global event bus, which is usually not the case
+
+because that approach has been shown to not scale in complexity;
+
+- separating the ability of emitting new data via the subject from the ability of subscribing to the data via,
+
+observable = splitting up these still responsibilities is essential.
+
+This is what allows observable patterns to build applications that scale well in complexity.
+
+- RxJs = library in reactive programming style using Observable Pattern, Observer, Store, Subject  in combination.
+
+- the Observable data service pattern for creating statefull services that expose one Observable is an example of
+
+a small store implemented using the `BehaviourSubject`
