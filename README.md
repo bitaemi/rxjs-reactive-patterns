@@ -38,32 +38,6 @@
 
 <!-- END doctoc generated TOC please keep comment here to allow auto update -->
 
-REACTIVE:
-
-{
-
- - WHY: scale insanely, reduce latency
-
- - Reactive example : Microsoft EXCEL, everything in IT, nowdays is reactive interaction.
-
- - reactive programming = dataflow computing <-> OBSERVABLE == STREAM OF DATA
-
- - Programming in reactive + functional style.
-
- - functional = (functional composition + lazy evaluation);
-
- - lazy evaluation == efficiency (avoiding things that shouldn't be done in the first place)
-
- - do not expose your datatabase( never share databases!), instead export your data
-
-}
-
-Understanding the OBSERVABLE PATTERN is the key for understanding RxJs Library and using the operators to programm in a reactive style.
-
-We install YARN = a better package manager, using npm.
-
-YARN is reliable, fast, secure - guarantees that I can have the exact same dependencies trees as someone has. Also is able to freeze my hall dependencies tree in a deterministic way. Build will complete succesfully due to yarn instalation.
-
 # 1. Installation and start up
 
 - ``npm i -g @angular/cli`` to install Angular Command Line Interface
@@ -102,14 +76,56 @@ Run `ng e2e` to execute the end-to-end tests via [Protractor](http://www.protrac
 
 To get more help on the Angular CLI use `ng help` or go check out the [Angular CLI README](https://github.com/angular/angular-cli/blob/master/README.md).
 
+We install YARN = a better package manager, using npm.
+
+YARN is reliable, fast, secure - guarantees that I can have the exact same dependencies trees as someone has. Also is able to freeze my hall dependencies tree in a deterministic way. Build will complete succesfully due to yarn instalation.
+
 # 2. Reactive programming
+
+## 2.0. Why REACTIVE, Observable vs. Redux:
+
+{
+
+ - WHY: scale insanely, reduce latency
+
+ - Reactive example : Microsoft EXCEL, everything in IT, nowdays is reactive interaction.
+
+ - Programming in reactive + functional style.
+
+ - functional = (functional composition + lazy evaluation);
+
+ - lazy evaluation == efficiency (avoiding things that shouldn't be done in the first place)
+
+ - do not expose your datatabase(never share databases!), instead export your data
+
+}
+
+Understanding the OBSERVABLE PATTERN is the key for understanding RxJs Library and using the operators to programm in a reactive style.
+
+Understanding the REDUX PATTERN is the key for understanding ngRx Library and using it to programm in a reactive style.
+
+ - reactive programming = dataflow computing:
+ 
+ a) using OBSERVABLE == STREAM OF DATA - from a big stream of data we extract that particular data to complete required data processing
+  
+ b) using REDUX == Single STATE TREE(a big Plain JavaScript Object) inside STORE - we use a REDUCER (Pure function) to update the STATE:
+
+respond to acton types, returning a new state.
+
+Both in a) and b) rective styles we use immutable update patterns: 
+
+![One-way DataFlow Diagram](reactive-dataFlow.png)
+
+we do not change the data stream from the input, but rather obtain a new 
+
+data, and use it.
 
 ## 2.1. Reactive Properties of Browser Events
 
 Observe the similarities between BROWSER EVENTS and reactive programming:
 
 
-- we can register a listener (subscrieber) to the browser events (streaming of data about events)
+- we can register a listener (subscriber) to the browser events (streaming of data about events)
 
 - the listener is a function that is called multiple times - invoked by a third party mechanism
 
@@ -121,11 +137,11 @@ this.hoverSelection = document.getElementById('hover');
     console.log(ev);
   });
 ```
-- for example, above, we are not aware of how the internal browser mechanism for handling mouse moves work.
+- for example, above, we are not aware of how the internal browser mechanism for handling mouse moves works.
 
-- we have no access to that mechanism and we cannot, for example trigger mouse events on behalf of the
+- we have no access to that mechanism and we cannot, for example, trigger mouse events on behalf of the
 
-browser which is actually a good thing. This means that if we want to build programs using the BROWSER EVENTS API,
+browser, which is actually a good thing. This means that if we want to build programms using the BROWSER EVENTS API,
 
 - we need to build them in a way that we simply declare via certain functions and listener functions, how should we REACT to the arrival of the new event.
 
