@@ -116,9 +116,7 @@ Both in a) and b) rective styles we use immutable update patterns:
 
 ![One-way DataFlow Diagram](reactive-dataFlow.png)
 
-we do not change the data stream from the input, but rather obtain a new 
-
-data, and use it.
+we do not change the data stream from the input, but rather obtain a new data, and use it.
 
 ## 2.1. Reactive Properties of Browser Events
 
@@ -291,7 +289,7 @@ EventBusExperiments component, only knows about the ``globalEventBus``.
 
 - more than one component modifies the same data;
 
--there are multiple components in the application that are keeping a copy of ``Lessons[]``
+- there are multiple components in the application that are keeping a copy of ``Lessons[]``
 
 - tight coupling between LessonsComponent and the main component
 
@@ -398,6 +396,18 @@ The consummers of the data (lessons-list component that lists lessons, counter c
 
 ## 3.3. Introduce in App a new Reactive Pattern: Centralized Store
 
+Use immutable data(by default objects, arrays are mutable and are passed by reference, but strings and numbers are immutable):
+
+    - predictability
+
+    - explicit state change
+
+    - performance (change detection)
+
+    - mutation tracking
+
+    - undo state changes
+
 Use a second pattern in this app, to centralize data in a single place in the app and thus solve the ownership issue;
 
 - after this, data can be modified only in one place of the app:
@@ -427,7 +437,7 @@ export const store = new DataStore();
 ```
 DATA is ENCAPSULATED inside the STORE.
 
-Because the lessons data from the store is not immutable we use:
+Because the lessons data from the store is not immutable, we use:
 
 ```TypeScript
     broadcast() {
@@ -437,7 +447,17 @@ Because the lessons data from the store is not immutable we use:
 
 and we have to make sure that no methods that mutate the data exist outside the STORE.
 
-Data is owened be the centralized STORE.
+Data is owened be the centralized STORE. Also if we think in terms of state, rather than data streams:
+
+    The STATE is a representation of the application wich resides in a centralized STORE. The STORE allows to:
+
+    - monitor
+
+    - read state values
+
+    - monitor/observe changes to state
+
+![Container and presentationl components](container-and-presentational.png)
 
 ## 3.4. The Store and the Observable, closely related
 
@@ -494,9 +514,7 @@ Imperative:
 
 - injecting into component's constructor service:
 
-``constructor(private db: AngularFireDatabase)`` => no separation between service
-
-layer and view layer;
+``constructor(private db: AngularFireDatabase)`` => no separation between service layer and view layer;
 
 - in couse-detail we encounter an **ANTI-PATTERN: NESTED `.subscribe`**
 
@@ -504,14 +522,16 @@ Reactive:
 
 - no local use of variables data to remove the posibility of mutating data
 
-- Separate Service logic from view logic! = make reusable services/business logic/fdatabase quering
+- Separate Service logic from view logic! = make reusable services/business, logic/database quering
 
 
 ## 4.1. Implementing the API of a Stateless Observable Service
 
 - no member variables that store data in the service
 
-- instead have public methods that expose the data to consumers (`findAllCourses`, `findLatestLessons` ...) - this methods return Observable = provide a callback if and when data is available
+- instead have public methods that expose the data to consumers (`findAllCourses`, `findLatestLessons` ...) 
+
+- this methods return Observables = provide a callback if and when data is available
 
 - only required singleton instances injected in the constructor (here `db` instance of the global `AngularFireDatabase` service)
 
