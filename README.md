@@ -110,11 +110,28 @@ Understanding the REDUX PATTERN is the key for understanding ngRx Library and us
   
  b) using REDUX == Single STATE TREE(a big Plain JavaScript Object) inside STORE - we use a REDUCER (Pure function) to update the STATE:
 
-respond to acton types, returning a new state.
+respond to action types, returning a new state.
 
 Both in a) and b) rective styles we use immutable update patterns: 
 
 ![One-way DataFlow Diagram](reactive-dataFlow.png)
+
+## we use REDUX with observables:
+
+- listen for ngrx/store actions
+
+- isolate side effects from component
+
+- communicate outside of Angular
+
+EFFECT =  just a mechanism to fetch data from the STORE and put back in the STORE
+
+Reducer and effect could be interested in the same data. Difference is  that the reducer is a pure function, is synchronous, but the EFFECT can return data from outside 
+
+the Angular app. The EFFECT is an **observable stream**, and we will be passing the stream of data as a response to the reducer via a dispatch action:
+
+![Effects DataFlow Diagram](effects-flow.png)
+
 
 we do not change the data stream from the input, but rather obtain a new data, and use it.
 
@@ -753,19 +770,19 @@ Whenever we subscribe to the `user$` Observable, we are going to initialize the 
 
 # 7. Implement a Data Table Pagination Service
 
-    This time we do not use the AngularFireBase, but an HTTP back-end that uses a db data stored in a JSON object on our server side.
+This time we do not use the AngularFireBase, but an HTTP back-end that uses a db data stored in a JSON object on
 
-    The pagination logic will be present at the level of the service layer (LessonsPagerService)
+our server side. The pagination logic will be present at the level of the service layer (LessonsPagerService)
 
-    If we need to load the pages eachtime from the server, we make the service stateless.
+If we need to load the pages eachtime from the server, we make the service stateless.
 
-    In case we have, for exapmle, a serchbox on the page with the `Next` and `Prev` buttons, we do not want to repeat the search
+In case we have, for exapmle, a serchbox on the page with the `Next` and `Prev` buttons, we do not want to repeat the search
 
-    each time we click on another lesson, so we make the service statefull.
+each time we click on another lesson, so we make the service statefull.
 
-   Restart the rest server at need: `nmp restart rest-api`
+Restart the rest server at need: `nmp restart rest-api`
 
-   Hit the REST server with the following request:
+Hit the REST server with the following request:
 
   `http://localhost:8090/api/lessons?courseId=1&pageNumber=1&pageSize=2` and the returned object is:
 
@@ -837,7 +854,7 @@ In the lessons-pager.service.ts:
     ]
 })
 ```
-Declaring a **service locally** in a component, we are going to have, **for each instance of that component, a distict instance of the service**,
+Declaring a **service locally** in a component, we are going to have, **for each instance of that component, a distinct instance of the service**,
 
 and, obviously,that instance is visible only in a certion section of a page. And if those services happen to contain state that is used by that
 
@@ -875,7 +892,7 @@ For example, parsejson:
 
                 `-- parsejson@0.0.3
 
- - `npm i karma@2.0.0`
+ - update karma: `npm i karma@2.0.0`
 
 # 8. The Master Detail Design Pattern With Cached Master Table
 
