@@ -31,7 +31,16 @@ export class CourseDetailComponent implements OnInit {
                   this.course = data;
 
                   this.coursesService.findLessonsForCourse(this.course.id)
-                      .subscribe(lessons => this.lessons = lessons);
+                      //.subscribe(lessons => this.lessons = lessons);
+                        .snapshotChanges()
+	                      .subscribe(lessons => {
+	                        this.lessons = lessons.map(data => {
+	                          return <Lesson>{
+	                            id: data.payload.key,
+	                            ...data.payload.val()
+	                          }
+	                        });
+	                      });
               });
 
           });
