@@ -1189,6 +1189,19 @@ and set it in the form.
 ```
 In the same reactive way we can pre-save the draft on server  side.
 
+# 13. Make your Components tell you stories with StoryBook lib
+
+Why StoryBook?
+
+ - supported by all frameworks
+ - It's going to really force you to decouple your components from each other so that you can build them in isolation.
+ - Rapid prototyping. Because I don't have to deal with a lot of the services that I might need to deal with or getting it just bootstrapped into my app and creating like a weird page, I can prototype more easily. 
+  - We have edge case testing
+  - design systems
+  - documentation
+  - automation.
+
+
 # 12. Conclusion
 
 - Reactive Programming as a style of developing asynchronous applications in a maintenable way.
