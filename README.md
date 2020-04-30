@@ -2,8 +2,11 @@
 <!-- DON'T EDIT THIS SECTION, INSTEAD RE-RUN doctoc TO UPDATE -->
 **Table of Contents**  *generated with [DocToc](https://github.com/thlorenz/doctoc)*
 
+- [0. Other Related Material](#0-other-related-material)
 - [1. Installation and start up](#1-installation-and-start-up)
 - [2. Reactive programming](#2-reactive-programming)
+  - [2.0. Why REACTIVE, Observable vs. Redux:](#20-why-reactive-observable-vs-redux)
+  - [we use REDUX with observables:](#we-use-redux-with-observables)
   - [2.1. Reactive Properties of Browser Events](#21-reactive-properties-of-browser-events)
   - [2.2. Relation Between Custom Application Events and Observer Pattern](#22-relation-between-custom-application-events-and-observer-pattern)
   - [2.3. Building an Application Based on a Custom Event Bus](#23-building-an-application-based-on-a-custom-event-bus)
@@ -34,9 +37,19 @@
 - [9. Error Handling in Reactive Applications](#9-error-handling-in-reactive-applications)
 - [10. Router Data Pre-Fetching, Loading Indicator and Container Components](#10-router-data-pre-fetching-loading-indicator-and-container-components)
 - [11. Laveraging Reactive Forms - Draft Pre-Saving](#11-laveraging-reactive-forms---draft-pre-saving)
-- [12. Conclusion](#12-conclusion)
+- [12. Make your Components tell you stories with StoryBook lib](#12-make-your-components-tell-you-stories-with-storybook-lib)
+- [13. Conclusion](#13-conclusion)
 
 <!-- END doctoc generated TOC please keep comment here to allow auto update -->
+
+# 0. Other Related Material
+
+- [Composing Data  with NgRx by Deborah Kurata Youtube](https://www.youtube.com/watch?v=Z76QlSpYcck)
+- [Composing Data  with NgRx by Deborah Kurata Slides in Docs](https://docs.google.com/presentation/d/11tlfhUoyZ6WG7-UyYE3YsfiaZcy7ijPO6hA4CFKaCn8/edit#slide=id.g546ed445de_1_106)
+- [https://github.com/DeborahK/Angular-DD](https://github.com/DeborahK/Angular-DD)
+- [RxJS Advanced Patterns - Operate Heavily Dynamic UIs](https://www.youtube.com/watch?v=XKfhGntZROQ)
+- [Thinking Reactively - Most Difficult](https://www.youtube.com/watch?v=-4cwkHNguXE)
+   - to solve the problem look into the template and find an async pipe for a similar behaviour and trace it up there
 
 # 1. Installation and start up
 
@@ -1189,7 +1202,7 @@ and set it in the form.
 ```
 In the same reactive way we can pre-save the draft on server  side.
 
-# Make your Components tell you stories with StoryBook lib
+# 12. Make your Components tell you stories with StoryBook lib
 
 Why StoryBook?
 
@@ -1228,9 +1241,8 @@ stories.add(
   }
 );
 ```
- 
 
-# 12. Conclusion
+# 13. Conclusion
 
 - Reactive Programming as a style of developing asynchronous applications in a maintenable way.
 
@@ -1279,3 +1291,4 @@ This is what allows observable patterns to build applications that scale well in
 - the Observable data service pattern for creating statefull services that expose one Observable is an example of
 
 a small store implemented using the `BehaviourSubject`
+
