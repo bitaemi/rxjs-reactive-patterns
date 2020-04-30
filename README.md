@@ -1189,7 +1189,7 @@ and set it in the form.
 ```
 In the same reactive way we can pre-save the draft on server  side.
 
-# 13. Make your Components tell you stories with StoryBook lib
+# Make your Components tell you stories with StoryBook lib
 
 Why StoryBook?
 
@@ -1199,8 +1199,36 @@ Why StoryBook?
   - We have edge case testing
   - design systems
   - documentation
-  - automation.
+  - automation
+  - easy to start `npx -p @storybook/cli sb init`
+  - demo at : https://github.com/amcdnl/angular-storybook
+  
+  - index.stories.ts file is
+  
+```TypeScript
+import { storiesOf } from '@storybook/angular';
+import { boolean, number, text, withKnobs } from '@storybook/addon-knobs';
 
+import { CatComponent } from '../app/cat.component';
+import markdownNotes from './README.md';
+
+const stories = storiesOf('Cats', module);
+stories.addDecorator(withKnobs);
+
+stories.add(
+  'Random Cats',
+  () => ({
+    component: CatComponent,
+    props: {
+      label: text('text', 'MOAR')
+    }
+  }),
+  {
+    notes: { markdown: markdownNotes } // can add addons to each component
+  }
+);
+```
+ 
 
 # 12. Conclusion
 
