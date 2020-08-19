@@ -2,15 +2,19 @@
 <!-- DON'T EDIT THIS SECTION, INSTEAD RE-RUN doctoc TO UPDATE -->
 **Table of Contents**  *generated with [DocToc](https://github.com/thlorenz/doctoc)*
 
-- [0. Other Related Material](#0-other-related-material)
+- [0. Overview](#0-overview)
+  - [Manipulate Streams of Data explained with graphics](#manipulate-streams-of-data-explained-with-graphics)
+  - [Related Material](#related-material)
 - [1. Installation and start up](#1-installation-and-start-up)
+  - [1.1. RxJs usage without a framework](#11-rxjs-usage-without-a-framework)
+  - [1.2. RxJs in Angular](#12-rxjs-in-angular)
 - [2. Reactive programming](#2-reactive-programming)
   - [2.0. Why REACTIVE, Observable vs. Redux:](#20-why-reactive-observable-vs-redux)
   - [we use REDUX with observables:](#we-use-redux-with-observables)
   - [2.1. Reactive Properties of Browser Events](#21-reactive-properties-of-browser-events)
   - [2.2. Relation Between Custom Application Events and Observer Pattern](#22-relation-between-custom-application-events-and-observer-pattern)
   - [2.3. Building an Application Based on a Custom Event Bus](#23-building-an-application-based-on-a-custom-event-bus)
-  - [2.4. Global Event Bus (is NOT Scallable in Complexity)](#24-global-event-bus-is-not-scallable-in-complexity)
+  - [2.4. Global Event Bus (is NOT Scalable in Complexity)](#24-global-event-bus-is-not-scalable-in-complexity)
     - [2.4.1. Implementing a Global Event Bus](#241-implementing-a-global-event-bus)
     - [2.4.2. Broadcast Application Data using the Global Event Bus](#242-broadcast-application-data-using-the-global-event-bus)
     - [2.4.3. Add Support for Different Types of Application Events](#243-add-support-for-different-types-of-application-events)
@@ -27,7 +31,7 @@
   - [4.2. Using the Stateless Observable Service](#42-using-the-stateless-observable-service)
   - [4.3. Service Layer API Design: Short-Lived or Long-Lived Observables?](#43-service-layer-api-design-short-lived-or-long-lived-observables)
   - [4.4. Refactoring the view component to Reactive Style](#44-refactoring-the-view-component-to-reactive-style)
-  - [4.5. Split Mixed Responsabilities into Smart + Presentational](#45-split-mixed-responsabilities-into-smart--presentational)
+  - [4.5. Split Mixed Responsibilities into Smart + Presentational](#45-split-mixed-responsibilities-into-smart--presentational)
 - [5. Observable Data Services](#5-observable-data-services)
 - [6. Deeply Nested Smart Components/ Component Design](#6-deeply-nested-smart-components-component-design)
   - [6.1. Fixing the Event Bubbling Design Issue](#61-fixing-the-event-bubbling-design-issue)
@@ -36,13 +40,22 @@
 - [8. The Master Detail Design Pattern With Cached Master Table](#8-the-master-detail-design-pattern-with-cached-master-table)
 - [9. Error Handling in Reactive Applications](#9-error-handling-in-reactive-applications)
 - [10. Router Data Pre-Fetching, Loading Indicator and Container Components](#10-router-data-pre-fetching-loading-indicator-and-container-components)
-- [11. Laveraging Reactive Forms - Draft Pre-Saving](#11-laveraging-reactive-forms---draft-pre-saving)
+- [11. Leveraging Reactive Forms - Draft Pre-Saving](#11-leveraging-reactive-forms---draft-pre-saving)
 - [12. Make your Components tell you stories with StoryBook lib](#12-make-your-components-tell-you-stories-with-storybook-lib)
 - [13. Conclusion](#13-conclusion)
 
 <!-- END doctoc generated TOC please keep comment here to allow auto update -->
 
-# 0. Other Related Material
+# 0. Overview
+
+## Manipulate Streams of Data explained with graphics
+
+This repo is all about the story of processing data in an easy way using the RxJS library.
+
+I will draw a visual graphics to illustrate the flow of data over a defined period when we are interested in using that data.
+
+![Stream-of-data-manipulation](./RxJs-no-framework/Stream-of-data-manipulation.JPG)
+ ## Related Material
 
 - [Composing Data  with NgRx by Deborah Kurata Youtube](https://www.youtube.com/watch?v=Z76QlSpYcck)
 - [Composing Data  with NgRx by Deborah Kurata Slides in Docs](https://docs.google.com/presentation/d/11tlfhUoyZ6WG7-UyYE3YsfiaZcy7ijPO6hA4CFKaCn8/edit#slide=id.g546ed445de_1_106)
@@ -53,6 +66,110 @@
 
 # 1. Installation and start up
 
+## 1.1. RxJs usage without a framework
+
+Before explaining any `gulpfile` configuration, look over the overview on Observables = streams of data. Gulp library basically manipulates streams of objects and streams of strings. 
+
+Make sure you have node installed.
+```Bash
+# To get this project ready, type the following commands from a command line in this directory:
+npm install
+npm install gulpjs/gulp-cli#4.0 -g # install gulp globally, if it is also installed inside the directory where you run your gulp command, it will take the local gulp version
+npm install live-server -g
+
+# To watch and build our server and client scripts, run:
+gulp watch:scripts
+
+# ALWAYS HAVE THAT TASK RUNNING WHEN DEVELOPING
+
+# To launch the server for client-side examples:
+live-server public
+
+# To launch a server-side example in node:
+npm run nodemon build/example_xx # Where "xx" is example number.
+
+npm run nodemon here_of_file_you_have_on_server_dir
+
+# hit Ctrl + S to restart the server whenever needed
+# Ctrl + C to stop the server
+
+```
+The gulpfile.js:
+
+```JavaScript
+"use strict";
+
+var gulp = require("gulp"),
+	$ = require("gulp-load-plugins")(),
+	source = require("vinyl-source-stream"),
+	browserify = require("browserify"),
+	watchify = require("watchify"),
+	babelify = require("babelify"),
+	path = require("path"),
+	fs = require("fs");
+	
+gulp.task("scripts:server", () => {
+	return gulp.src("./src-server/**/*.js")
+		.pipe($.cached("server"))
+		.pipe($.babel())
+		.pipe(gulp.dest("./build"));
+});
+
+gulp.task("watch:scripts:server", gulp.series(
+	"scripts:server",
+	() => gulp.watch("./src-server/**/*.js", gulp.series("scripts:server"))));
+
+gulp.task("watch:scripts:client", () => {
+	const files = fs.readdirSync("./src-client");
+	for (let i = 0; i < files.length; i++) {
+		const file = files[i];
+		if (path.extname(file) !== ".js")
+			continue;
+			
+		initBundlerWatch(path.join("src-client", file));
+	}
+	
+	return gulp.watch("./src-client/**/*.js")
+		.on("change", initBundlerWatch);
+});
+
+gulp.task("watch:scripts", gulp.parallel(
+	"watch:scripts:client",
+	"watch:scripts:server"))
+
+let bundlers = {};
+function initBundlerWatch(file) {
+	if (bundlers.hasOwnProperty(file))
+		return;
+		
+	const bundler = createBundler(file);
+	bundlers[file] = bundler;
+	
+	const watcher = watchify(bundler);
+	const filename = path.basename(file);
+	
+	function bundle() {
+		return bundler
+			.bundle()
+			.on("error", error => console.error(error))
+			.pipe(source(filename))
+			.pipe(gulp.dest("./public/build"));
+	}
+	
+	watcher.on("update", bundle);
+	watcher.on("time", time => console.log(`Built client in ${time}ms`));
+	
+	bundle();
+}
+
+function createBundler(file) {
+	const bundler = browserify(file);
+	bundler.transform(babelify);
+	return bundler;
+}
+```
+
+## 1.2. RxJs in Angular
 - ``npm i -g @angular/cli`` to install Angular Command Line Interface
 
 - by default,the setting for each generated component, in angular.json is: ``"prefix": "app",``
@@ -95,13 +212,13 @@ YARN is reliable, fast, secure - guarantees that I can have the exact same depen
 
 # 2. Reactive programming
 
-## 2.0. Why REACTIVE, Observable vs. Redux:
+## 2.0. Motivation, why should we use REACTIVE implementation
 
 {
 
  - WHY: scale insanely, reduce latency
 
- - Reactive example : Microsoft EXCEL, everything in IT, nowdays is reactive interaction.
+ - Reactive example: Microsoft EXCEL, everything in IT, nowdays is reactive interaction.
 
  - Programming in reactive + functional style.
 
@@ -109,9 +226,51 @@ YARN is reliable, fast, secure - guarantees that I can have the exact same depen
 
  - lazy evaluation == efficiency (avoiding things that shouldn't be done in the first place)
 
- - do not expose your datatabase(never share databases!), instead export your data
+ - do not expose your database (never share databases!), instead export your data
 
 }
+
+### Imperative vs. Declarative ~ The HORROR vs NICE story of Auto complete/Search Input box 
+
+There was a time when we implemented the autocomplete input box using a very naive and messy implementation using Promises and instuctions to tell the module what and how to do the execution. These instructions were not representative of what we wanted to do. On user input we had to make some requests(show and highlight in the DOM the occurences of the searched words reactively, while the user typed the words). There were multiple issues with the race conditions for quering responses. 
+
+Compare that hell of bugs with the smoot implemententation done using Observables:
+
+```JavaScript
+import $ from "jquery";
+import Rx from "rxjs/Rx";
+
+const $title = $("#title");
+const $results = $("#results");
+
+// now use the opeartors of the RxJs reactive extention:
+Rx.Observable.fromEvents($title, "keyup") // capture the keyup events in an Obsevable stream of data
+.map(e => e.target.value) // get the user input value
+// now transform the initial Observable stream of data into the stream of data that doesnt allow new
+// values identical with the last value received 
+.distinctUntilChanged() 
+.debounceTime(500) // wait 5ms
+// switch to a new Observable and cancel the previous stream of data if a new query is received
+.switchMap(getItems)
+// lastly, get the values from this last, fully processed stream of data
+.subscribe(items => {
+    $results.empty();
+    $results.append(items.map(i => $('<li />').text(i)));
+});
+
+// Just to show case - simulate some requests
+function getItems(title) {
+    console.log(`Quering ${title}`);
+    return new Promise((resolve, reject) => {
+        window.setTimeout(() => {
+            resolve([title, "Item 2", `Another ${Math.random()}`]);
+        }, 500 +(Math.random()*5000));
+
+    })
+}
+```
+
+## Observable vs. Redux
 
 Understanding the OBSERVABLE PATTERN is the key for understanding RxJs Library and using the operators to programm in a reactive style.
 
@@ -127,9 +286,9 @@ respond to action types, returning a new state.
 
 Both in a) and b) rective styles we use immutable update patterns: 
 
-![One-way DataFlow Diagram](reactive-dataFlow.png)
+![One-way Dataflow Diagram](reactive-dataFlow.png)
 
-## we use REDUX with observables:
+## we use REDUX with Observables
 
 - listen for ngrx/store actions
 
@@ -143,8 +302,7 @@ Reducer and effect could be interested in the same data. Difference is  that the
 
 the Angular app. The EFFECT is an **observable stream**, and we will be passing the stream of data as a response to the reducer via a dispatch action:
 
-![Effects DataFlow Diagram](effects-flow.png)
-
+![Effects Dataflow Diagram](effects-flow.png)
 
 we do not change the data stream from the input, but rather obtain a new data, and use it.
 
@@ -152,10 +310,9 @@ we do not change the data stream from the input, but rather obtain a new data, a
 
 Observe the similarities between BROWSER EVENTS and reactive programming:
 
-
 - we can register a listener (subscriber) to the browser events (streaming of data about events)
 
-- the listener is a function that is called multiple times - invoked by a third party mechanism
+- the listener is a function that is called multiple times - invoked by a third-party mechanism
 
 - we cannot trigger events on behalf of the browser
 
@@ -167,7 +324,7 @@ this.hoverSelection = document.getElementById('hover');
 ```
 - for example, above, we are not aware of how the internal browser mechanism for handling mouse moves works.
 
-- we have no access to that mechanism and we cannot, for example, trigger mouse events on behalf of the
+- we have no access to that mechanism, and we cannot, for example, trigger mouse events on behalf of the
 
 browser, which is actually a good thing. This means that if we want to build programms using the BROWSER EVENTS API,
 
@@ -202,7 +359,7 @@ BROWSER DOM EVENTS MECHANISM is a general way to handle asynchronous data and we
 
 ## 2.2. Relation Between Custom Application Events and Observer Pattern
 
-A PATTERN =  A RECEPIE for how to build software:
+A PATTERN = A RECEPIE for how to build software:
 
 ![Observer Pattern Diagram](observerPattern.jpg)
 
@@ -212,7 +369,7 @@ Is about LOOSE COUPLING between different parts of the application.
 
 The Observer is an interface with ``notify`` method that provides new data.
 
-**Is closely related to Browser Events mechanism.**
+**It is closely related to Browser Events mechanism. **
 
 In the system there are multiple Observers that are observing on the SAME SUBJECT.
 
@@ -222,8 +379,7 @@ so is going to register itself on the SUBJECT.
 
 The subject will contain internally a COLLECTION OF REGISTERED OBSERVERS.
 
-Whenever the SUBJECT has a change of internal state is going to notify the each OBSERVER from obeserverCollection, via ``notifyObservers``
-
+Whenever the SUBJECT has a change of internal state is going to notify each OBSERVER from obeserverCollection, via ``notifyObservers``
 
 Analogies:  Subject         <---------> hoverSelection
 
@@ -235,17 +391,17 @@ Analogies:  Subject         <---------> hoverSelection
 
             notify          <----------> call the callbacks of onMouseMove  directly
 
-            PUBLIC notifyObservers <---------> ! NO ANALOGIE - THIS IS A MAJOR DIFFERENCE -
+            PUBLIC notifyObservers <--------->! NO ANALOGIE - THIS IS A MAJOR DIFFERENCE -
 
             We are NOT ABLE TO TRIGGER EVENTS ON BEHALF OF THE BROWSER (the mouse movement, for example
 
-            is an internal implementation of the Browser, private!
+            is an internal implementation of the Browser, private!)
 
 with the Observer Pattern, unlike the case of Browser Events any of the Observers can
 
 trigger the emission of new values for all the other registered Observers.
 
-This is unlike the case of browser callbacks -  we can only register callbacks and get back data.
+This is unlike the case of browser call-backs - we can only register call-backs and get back data.
 
 ```TypeScript
 // similar to registering the onMouseMove and onClick in Subject's collection of Observers:
@@ -269,7 +425,7 @@ The EventBus class is not visible in other components, as we export only an inst
 
 ``export const globalEventBus = new EventBus();``
 
-## 2.4. Global Event Bus (is NOT Scallable in Complexity)
+## 2.4. Global Event Bus (is NOT Scalable in Complexity)
 
  Global Event Bus = is a component communication mechanism (that allows components to interact with each other), without @Input and @Output parameters, but is NOT Scallable in Complexity -
 
@@ -407,7 +563,7 @@ export function initializeLessonsList(newList: Lesson[]) {
     lessonsListSubject.next(lessons);
 }
 ```
-and is not accesible over different components!;
+and is not accessible over different components!;
 
 ## 3.2. Fix a timing issue
 
@@ -492,7 +648,7 @@ Data is owened be the centralized STORE. Also if we think in terms of state, rat
 ## 3.4. The Store and the Observable, closely related
 
 We transform the Store(`DataStore`) from having an Observable property (`lessonsList$`),
-into beeing an Observable.
+into being an Observable.
 
 ## 3.5. Using RxJs Library, instead of previously discussed concepts
 
@@ -519,11 +675,11 @@ So the lessons list observable will emit the values that are broadcasted via thi
 
 ``BehaviorSubject`` - is a Subject Implementantion that remembers previously emitted values.
 
-- Reactive Style = Build  the app by composing separate modules:
+- Reactive Style = Build the app by composing separate modules:
 
 - separate components, separate services interact with each other in a decoupled way, by emitting data.
 
-- each module reacts to the arrival of new data,  but it does not know the seaquences of operations that occur in other modules.
+- each module reacts to the arrival of new data, but it does not know the seaquences of operations that occur in other modules.
 
 - whenever some part of the app needs data, it subscribes to it and provides an Observer
 
@@ -536,7 +692,6 @@ So the lessons list observable will emit the values that are broadcasted via thi
 We use one Google's FireBase for getting data - reading (see fireBase.config.ts for batabase setup and settings), also the AngularFireBase library is Observable based API.
 
 Starting from an imperative style implementation, and refactoring into a reactive implementation.
-
 
 Imperative:
 
@@ -554,20 +709,19 @@ Reactive:
 
 - Separate Service logic from view logic! = make reusable services/business, logic/database quering
 
-
 ## 4.1. Implementing the API of a Stateless Observable Service
 
 - no member variables that store data in the service
 
-- instead have public methods that expose the data to consumers (`findAllCourses`, `findLatestLessons` ...) 
+- instead, have public methods that expose the data to consumers (`findAllCourses`, `findLatestLessons` ...) 
 
-- this methods return Observables = provide a callback if and when data is available
+- these methods return Observables = provide a callback if and when data is available
 
 - only required singleton instances injected in the constructor (here `db` instance of the global `AngularFireDatabase` service)
 
-- we **don't want to return synchronous data** from such global services
+- we **do not want to return synchronous data** from such global services
 
-- instead, we want to **return an Observable that emits values** wich are the desired data(array of Courses, in this case):
+- instead, we want to **return an Observable that emits values** wich are the desired data (array of Courses, in this case):
 
 ```TypeScript
     findAllCourses(): Observable<Course[]> {
@@ -577,7 +731,7 @@ Reactive:
 ```
 ## 4.2. Using the Stateless Observable Service
 
-In the component that renders the view logic ( ex: `home.component.ts`), subscribe to the Observable of the injected service(`coursesService`):
+In the component that renders the view logic (ex: `home.component.ts`), subscribe to the Observable of the injected service(`coursesService`):
 
 ```TypeScript
     this.coursesService.findAllCourses()
@@ -589,7 +743,7 @@ In the component that renders the view logic ( ex: `home.component.ts`), subscri
 
 - use the injected Singleton instance (in this case, our Stateless Observable Service) in all components requiring the data
 
-- the view layer(component), receives data **independently of any timing condition** - that's because we consume  Stateless Observable Services, by subscribing to the Observables of the service
+- the view layer(component), receives data **independently of any timing condition** - that's because we consume Stateless Observable Services, by subscribing to the Observables of the service
 
 - so, no need for Maping and async of Promisses, instead we use Observables
 
@@ -653,7 +807,7 @@ and use the template `noCourses` variable like this:
         Loading ...
     </ng-template>
 ```
-## 4.5. Split Mixed Responsabilities into Smart + Presentational
+## 4.5. Split Mixed Responsibilities into Smart + Presentational
 
 We should respect the SINGLE RESPONSABILITY PRINCIPLE
 
@@ -693,7 +847,7 @@ run: `npm install rxjs@6 rxjs-compat@6 promise-polyfill` to fix rxjs compatibili
 
 ``<app-newsletter [firstName]="firstName" (subscribe)="onSubscribe($event)">``
 
-and in  the newsletter.component.ts:
+and in the newsletter.component.ts:
 
 ```TypeScript
 @Input()
@@ -739,6 +893,9 @@ and in  the newsletter.component.ts:
 ```TypeScript
 this.course$ = this.route.params
       .switchMap( params => this.coursesService.findCourseByUrl(params['id']));
+    //   switchMap is the old flatMapLatest operator - it basically switches to a new stream of data
+    // if a new query comes in, before everything was returned, the previous stream of data is cancelled
+    // and the query for the new stream of data is now executed
 ```
 -  the component is only going to be re-rendered if there is a change in one of it's inputs:
 
@@ -766,7 +923,7 @@ Whenever we subscribe to the `user$` Observable, we are going to initialize the 
    - an `@Output` event is emitted inside the component
    - an Observable to witch the template of the component has subscribed to, using the ` | async` is changed
 
-   So if we have to declare all **changing fields** - getting data from a stream,  as Observables e.g:
+   So if we have to declare all **changing fields** - getting data from a stream, as Observables e.g:
 
 ```TypeScript
     firstName$: Observable<string>;
@@ -869,13 +1026,13 @@ In the lessons-pager.service.ts:
 ```
 Declaring a **service locally** in a component, we are going to have, **for each instance of that component, a distinct instance of the service**,
 
-and, obviously,that instance is visible only in a certion section of a page. And if those services happen to contain state that is used by that
+and, obviously, that instance is visible only in a certion section of a page. And if those services happen to contain state that is used by that
 
 section of the page, that state will be destroyed when the component is itself destroyed.
 
 So the lifecycle of the service is tied to the lifecycle of the component - very **usefull for implementing statefull service**, such as lessons-pager.service,
 
-that is linked to a very specific section of the page. We can have state there, stored for  user experiece purposes and we don't have to worry
+that is linked to a very specific section of the page. We can have state there, stored for user experience purposes and we don't have to worry
 
 about cleaning up that state, because **when the component is destroyed, also the locally declared service is destroyed** (navigating to another app's component,
 
@@ -991,12 +1148,12 @@ contract, we cannot emit values again. So, we **DO NOT ERROR THE OBSERVABLE FROM
 
 We refactor service's methods  to return Observables, and at the level of component we call service's methods, by subscribing to the observables,
 
-that allows us to see if the operations suceeded or failed.
+that allows us to see if the operations succeeded or failed.
 
 WE STILL EMIT THE lessons-pager Observable, to any part af the app that is subscribed to it, by appling `do`, instead of `subscribe`:
 
 ```TypeScript
-// keep emmiting lessons-pager Observable
+// keep emitting lessons-pager Observable
 
 this.http.get(
     // ...
@@ -1028,9 +1185,9 @@ Benefits of router data pre-fetching:
 
 we show the loading indicator untill gathering the data for the target screen and when we display the target screen,
 
-we hide the loading icon;
+we hide the loading icon.
 
-- if the data loading operation fails we can still show an error message on the search screen.
+- if the data loading operation fails, we can still show an error message on the search screen.
 
 - we can have a loading indicator at a central place and use it in multiple places in the app
 
@@ -1069,7 +1226,7 @@ export class CourseDetailResolver implements Resolve<[Course, (Lesson[])]> {
 
 Inject de resolver into app.module's providers array.
 
-Add the resover in routerConfig:
+Add the resolver in routerConfig:
 
 ```TypeScript
     {
@@ -1103,7 +1260,7 @@ the `this.route.data` is actually the observable.
 
 The `resolve` method of `CourseDetailResolver`:
 
-- makes a request to retrive the course by the url
+- makes a request to retrieve the course by the url
 
 - keeps the result
 
@@ -1120,7 +1277,6 @@ So:
 the course-detail will have access to the data, via the `data` Observable
 
 The loading component:
-
 
 ```TypeScript
 // ..
@@ -1147,8 +1303,7 @@ we want the loading indicator to be shown. If the navigation end or in any other
 
 indicator to be hidden.
 
-
-# 11. Laveraging Reactive Forms - Draft Pre-Saving
+# 11. Leveraging Reactive Forms - Draft Pre-Saving
 
 Let's say we need Draft pre-saveing for a form (create lesson form). If the user navigates to another page in the site,
 
@@ -1274,11 +1429,11 @@ to will react to the arrival of the new data, for example displaying the data on
 
 information about what triggered the modification of that data or what part of the application caused it.
 
-- the modification of the data is done by the **subject** which is an **EVENT BUS**,  is meant to be kept **private** to the
+- the modification of the data is done by the **subject** which is an **EVENT BUS**, is meant to be kept **private** to the
 
 part of the application that owns the data, unless our intention is to create a global event bus, which is usually not the case
 
-because that approach has been shown to not scale in complexity;
+because that approach has been shown to not scale in complexity.
 
 - separating the ability of emitting new data via the subject from the ability of subscribing to the data via,
 
@@ -1286,9 +1441,10 @@ observable = splitting up these still responsibilities is essential.
 
 This is what allows observable patterns to build applications that scale well in complexity.
 
-- RxJs = library in reactive programming style using Observable Pattern, Observer, Store, Subject  in combination.
+- RxJs = library in reactive programming style using Observable Pattern, Observer, Store, Subject in combination.
 
 - the Observable data service pattern for creating statefull services that expose one Observable is an example of
 
 a small store implemented using the `BehaviourSubject`
+
 
