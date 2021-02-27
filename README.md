@@ -62,6 +62,7 @@ I will draw a visual graphics to illustrate the flow of data over a defined peri
 ![Stream-of-data-manipulation](./RxJs-no-framework/Stream-of-data-manipulation.JPG)
 
 <b>! Observables are streams of data</b>
+<b> Subjects are have both Observer and Observable capabilities</b>
 
 Examples:
 - mouse movement (stream of data never completes)
@@ -70,8 +71,8 @@ Examples:
 
 ## Related Material
 
-- [Composing Data  with NgRx by Deborah Kurata Youtube](https://www.youtube.com/watch?v=Z76QlSpYcck)
-- [Composing Data  with NgRx by Deborah Kurata Slides in Docs](https://docs.google.com/presentation/d/11tlfhUoyZ6WG7-UyYE3YsfiaZcy7ijPO6hA4CFKaCn8/edit#slide=id.g546ed445de_1_106)
+- [Composing Data  with RxJs by Deborah Kurata Youtube](https://www.youtube.com/watch?v=Z76QlSpYcck)
+- [Composing Data  with RxJs by Deborah Kurata Slides in Docs](https://docs.google.com/presentation/d/11tlfhUoyZ6WG7-UyYE3YsfiaZcy7ijPO6hA4CFKaCn8/edit#slide=id.g546ed445de_1_106)
 - [https://github.com/DeborahK/Angular-DD](https://github.com/DeborahK/Angular-DD)
 - [RxJS Advanced Patterns - Operate Heavily Dynamic UIs](https://www.youtube.com/watch?v=XKfhGntZROQ)
 - [Thinking Reactively - Most Difficult](https://www.youtube.com/watch?v=-4cwkHNguXE)
@@ -116,15 +117,46 @@ There was a time when we implemented the autocomplete input box using a very nai
 Compare that hell of bugs with the smoot implemententation from below,using Observables (we will explain it later)
 
 ```JavaScript
-Rx.Observable.fromEvents($title, "keyup") 
-.map(e => e.target.value)
-.distinctUntilChanged() 
-.debounceTime(500) 
-.switchMap(getItems)
-.subscribe(items => {
-    // just use here the items values from subscription made on the Observable stream of data
-});
+searchStream$ = new BehaviorSubject('');
+obs$ = this.searchStream$.pipe(
+  debounceTime(200),
+  distinctUntilChanged(),
+  switchMap((query) =>
+    concat(
+      // emit { type: 'start' } immediately
+      of({ type: 'start'}),
+      this.productsService.getByFilter(query)
+            // map to the wrapped object with type finish      
+            .pipe(map(value => ({ type: 'finish', value })))
+    })
+);
 ```
+and the HTML:
+```HTML
+<h2 class="title">Products</h2>
+
+<div class="search-bar">
+  <input (input)="searchStream$.next($event.target.value)"> 
+</div>
+    
+<div class="results"> 
+  <h3>Built-in solution</h3>
+  <div *ngIf="obs$ | async as obs">
+    <ng-template [ngIf]="obs.type === 'finish'">
+      {{obs.value}}
+    </ng-template>
+     <ng-template [ngIf]="obs.type === 'start'">Loading...</ng-template>  
+  </div>    
+ 
+  <h3>WithLoadingPipe</h3>
+  <div *ngIf="obs$ | withLoading | async as obs">
+    <ng-template [ngIf]="obs.value">{{ obs.value }}
+    </ng-template>
+    <ng-template [ngIf]="obs.loading">Loading...</ng-template>
+  </div>
+ </div>
+``` 
+Where the withLoading pipe is used : [https://medium.com/angular-in-depth/angular-show-loading-indicator-when-obs-async-is-not-yet-resolved-9d8e5497dd8](https://medium.com/angular-in-depth/angular-show-loading-indicator-when-obs-async-is-not-yet-resolved-9d8e5497dd8)
 More details at [RxJs-no-framework/README.md#autocompletesearch-input-box-nice-reactive-implementation](./RxJs-no-framework/README.md#autocompletesearch-input-box-nice-reactive-implementation)
 
 ## The core of Reactive Extensions
